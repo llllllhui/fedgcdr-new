@@ -1,0 +1,213 @@
+Namespace(dataset='amazon', round_gat=30, round_ft=60, num_domain=4, device='cuda:0', target_domain=1, lr_mf=0.005, lr_gat=0.001, lr_lightgcn=0.01, embedding_size=16, local_epoch=3, weight_decay=0.0001, num_negative=4, user_batch=16, model='fedgcdr', gnn_type='lightgcn', knowledge=False, only_ft=False, eps=8, dp=True, delta=1e-05, num_users=43989, random_seed=42, description=None)
+[Clothing LightGCN Round 0] hr_5 = 0.0874, ndcg_5 = 0.0655, hr_10 = 0.1359, ndcg_10 = 0.0810
+[Clothing LightGCN Round 1] hr_5 = 0.1692, ndcg_5 = 0.1415, hr_10 = 0.2372, ndcg_10 = 0.1634
+[Clothing LightGCN Round 2] hr_5 = 0.1831, ndcg_5 = 0.1457, hr_10 = 0.2599, ndcg_10 = 0.1703
+[Clothing LightGCN Round 3] hr_5 = 0.2006, ndcg_5 = 0.1397, hr_10 = 0.2643, ndcg_10 = 0.1603
+[Clothing LightGCN Round 4] hr_5 = 0.1985, ndcg_5 = 0.1380, hr_10 = 0.2780, ndcg_10 = 0.1637
+[Clothing LightGCN Round 5] hr_5 = 0.1916, ndcg_5 = 0.1378, hr_10 = 0.2691, ndcg_10 = 0.1627
+[Clothing LightGCN Round 6] hr_5 = 0.1969, ndcg_5 = 0.1472, hr_10 = 0.2692, ndcg_10 = 0.1705
+[Clothing LightGCN Round 7] hr_5 = 0.1965, ndcg_5 = 0.1488, hr_10 = 0.2646, ndcg_10 = 0.1708
+[Clothing LightGCN Round 8] hr_5 = 0.1958, ndcg_5 = 0.1515, hr_10 = 0.2607, ndcg_10 = 0.1722
+[Clothing LightGCN Round 9] hr_5 = 0.1938, ndcg_5 = 0.1524, hr_10 = 0.2615, ndcg_10 = 0.1741
+[Clothing LightGCN Round 10] hr_5 = 0.1958, ndcg_5 = 0.1549, hr_10 = 0.2610, ndcg_10 = 0.1757
+[Clothing LightGCN Round 11] hr_5 = 0.1984, ndcg_5 = 0.1563, hr_10 = 0.2571, ndcg_10 = 0.1751
+[Clothing LightGCN Round 12] hr_5 = 0.2017, ndcg_5 = 0.1589, hr_10 = 0.2612, ndcg_10 = 0.1778
+[Clothing LightGCN Round 13] hr_5 = 0.2040, ndcg_5 = 0.1601, hr_10 = 0.2626, ndcg_10 = 0.1787
+[Clothing LightGCN Round 14] hr_5 = 0.2045, ndcg_5 = 0.1611, hr_10 = 0.2642, ndcg_10 = 0.1802
+[Clothing LightGCN Round 15] hr_5 = 0.2044, ndcg_5 = 0.1613, hr_10 = 0.2650, ndcg_10 = 0.1806
+[Clothing LightGCN Round 16] hr_5 = 0.2072, ndcg_5 = 0.1628, hr_10 = 0.2681, ndcg_10 = 0.1822
+[Clothing LightGCN Round 17] hr_5 = 0.2096, ndcg_5 = 0.1639, hr_10 = 0.2673, ndcg_10 = 0.1823
+[Clothing LightGCN Round 18] hr_5 = 0.2107, ndcg_5 = 0.1643, hr_10 = 0.2680, ndcg_10 = 0.1826
+[Clothing LightGCN Round 19] hr_5 = 0.2116, ndcg_5 = 0.1647, hr_10 = 0.2705, ndcg_10 = 0.1835
+[Clothing LightGCN Round 20] hr_5 = 0.2122, ndcg_5 = 0.1664, hr_10 = 0.2716, ndcg_10 = 0.1854
+[Clothing LightGCN Round 21] hr_5 = 0.2134, ndcg_5 = 0.1673, hr_10 = 0.2727, ndcg_10 = 0.1862
+[Clothing LightGCN Round 22] hr_5 = 0.2102, ndcg_5 = 0.1653, hr_10 = 0.2721, ndcg_10 = 0.1851
+[Clothing LightGCN Round 23] hr_5 = 0.2122, ndcg_5 = 0.1663, hr_10 = 0.2728, ndcg_10 = 0.1857
+[Clothing LightGCN Round 24] hr_5 = 0.2132, ndcg_5 = 0.1663, hr_10 = 0.2738, ndcg_10 = 0.1858
+[Clothing LightGCN Round 25] hr_5 = 0.2156, ndcg_5 = 0.1670, hr_10 = 0.2758, ndcg_10 = 0.1864
+[Clothing LightGCN Round 26] hr_5 = 0.2178, ndcg_5 = 0.1684, hr_10 = 0.2773, ndcg_10 = 0.1874
+[Clothing LightGCN Round 27] hr_5 = 0.2175, ndcg_5 = 0.1686, hr_10 = 0.2777, ndcg_10 = 0.1879
+[Clothing LightGCN Round 28] hr_5 = 0.2192, ndcg_5 = 0.1693, hr_10 = 0.2790, ndcg_10 = 0.1884
+[Clothing LightGCN Round 29] hr_5 = 0.2186, ndcg_5 = 0.1686, hr_10 = 0.2788, ndcg_10 = 0.1879
+[Books LightGCN Round 0] hr_5 = 0.2814, ndcg_5 = 0.2103, hr_10 = 0.3757, ndcg_10 = 0.2413
+[Books LightGCN Round 1] hr_5 = 0.4564, ndcg_5 = 0.3739, hr_10 = 0.5389, ndcg_10 = 0.4005
+[Books LightGCN Round 2] hr_5 = 0.5370, ndcg_5 = 0.4259, hr_10 = 0.6305, ndcg_10 = 0.4561
+[Books LightGCN Round 3] hr_5 = 0.5574, ndcg_5 = 0.4452, hr_10 = 0.6585, ndcg_10 = 0.4780
+[Books LightGCN Round 4] hr_5 = 0.5684, ndcg_5 = 0.4592, hr_10 = 0.6772, ndcg_10 = 0.4946
+[Books LightGCN Round 5] hr_5 = 0.5883, ndcg_5 = 0.4754, hr_10 = 0.6943, ndcg_10 = 0.5098
+[Books LightGCN Round 6] hr_5 = 0.5995, ndcg_5 = 0.4850, hr_10 = 0.7053, ndcg_10 = 0.5194
+[Books LightGCN Round 7] hr_5 = 0.6065, ndcg_5 = 0.4881, hr_10 = 0.7159, ndcg_10 = 0.5238
+[Books LightGCN Round 8] hr_5 = 0.6161, ndcg_5 = 0.4939, hr_10 = 0.7200, ndcg_10 = 0.5277
+[Books LightGCN Round 9] hr_5 = 0.6155, ndcg_5 = 0.4958, hr_10 = 0.7230, ndcg_10 = 0.5308
+[Books LightGCN Round 10] hr_5 = 0.6211, ndcg_5 = 0.5008, hr_10 = 0.7271, ndcg_10 = 0.5352
+[Books LightGCN Round 11] hr_5 = 0.6227, ndcg_5 = 0.5012, hr_10 = 0.7286, ndcg_10 = 0.5355
+[Books LightGCN Round 12] hr_5 = 0.6231, ndcg_5 = 0.4999, hr_10 = 0.7287, ndcg_10 = 0.5341
+[Books LightGCN Round 13] hr_5 = 0.6244, ndcg_5 = 0.5024, hr_10 = 0.7308, ndcg_10 = 0.5368
+[Books LightGCN Round 14] hr_5 = 0.6273, ndcg_5 = 0.5031, hr_10 = 0.7325, ndcg_10 = 0.5372
+[Books LightGCN Round 15] hr_5 = 0.6264, ndcg_5 = 0.5030, hr_10 = 0.7315, ndcg_10 = 0.5370
+[Books LightGCN Round 16] hr_5 = 0.6295, ndcg_5 = 0.5066, hr_10 = 0.7318, ndcg_10 = 0.5398
+[Books LightGCN Round 17] hr_5 = 0.6327, ndcg_5 = 0.5092, hr_10 = 0.7317, ndcg_10 = 0.5413
+[Books LightGCN Round 18] hr_5 = 0.6351, ndcg_5 = 0.5117, hr_10 = 0.7331, ndcg_10 = 0.5435
+[Books LightGCN Round 19] hr_5 = 0.6376, ndcg_5 = 0.5146, hr_10 = 0.7337, ndcg_10 = 0.5458
+[Books LightGCN Round 20] hr_5 = 0.6370, ndcg_5 = 0.5124, hr_10 = 0.7355, ndcg_10 = 0.5444
+[Books LightGCN Round 21] hr_5 = 0.6380, ndcg_5 = 0.5114, hr_10 = 0.7362, ndcg_10 = 0.5432
+[Books LightGCN Round 22] hr_5 = 0.6385, ndcg_5 = 0.5121, hr_10 = 0.7361, ndcg_10 = 0.5437
+[Books LightGCN Round 23] hr_5 = 0.6386, ndcg_5 = 0.5111, hr_10 = 0.7359, ndcg_10 = 0.5426
+[Books LightGCN Round 24] hr_5 = 0.6397, ndcg_5 = 0.5111, hr_10 = 0.7385, ndcg_10 = 0.5431
+[Books LightGCN Round 25] hr_5 = 0.6422, ndcg_5 = 0.5118, hr_10 = 0.7387, ndcg_10 = 0.5431
+[Books LightGCN Round 26] hr_5 = 0.6437, ndcg_5 = 0.5138, hr_10 = 0.7405, ndcg_10 = 0.5450
+[Books LightGCN Round 27] hr_5 = 0.6430, ndcg_5 = 0.5132, hr_10 = 0.7394, ndcg_10 = 0.5444
+[Books LightGCN Round 28] hr_5 = 0.6431, ndcg_5 = 0.5132, hr_10 = 0.7394, ndcg_10 = 0.5444
+[Books LightGCN Round 29] hr_5 = 0.6436, ndcg_5 = 0.5142, hr_10 = 0.7395, ndcg_10 = 0.5453
+[Movies LightGCN Round 0] hr_5 = 0.3385, ndcg_5 = 0.2377, hr_10 = 0.3949, ndcg_10 = 0.2560
+[Movies LightGCN Round 1] hr_5 = 0.4482, ndcg_5 = 0.3497, hr_10 = 0.5356, ndcg_10 = 0.3780
+[Movies LightGCN Round 2] hr_5 = 0.5189, ndcg_5 = 0.4085, hr_10 = 0.6137, ndcg_10 = 0.4393
+[Movies LightGCN Round 3] hr_5 = 0.5550, ndcg_5 = 0.4312, hr_10 = 0.6530, ndcg_10 = 0.4630
+[Movies LightGCN Round 4] hr_5 = 0.5630, ndcg_5 = 0.4351, hr_10 = 0.6602, ndcg_10 = 0.4665
+[Movies LightGCN Round 5] hr_5 = 0.5711, ndcg_5 = 0.4416, hr_10 = 0.6656, ndcg_10 = 0.4724
+[Movies LightGCN Round 6] hr_5 = 0.5780, ndcg_5 = 0.4443, hr_10 = 0.6715, ndcg_10 = 0.4746
+[Movies LightGCN Round 7] hr_5 = 0.5734, ndcg_5 = 0.4407, hr_10 = 0.6716, ndcg_10 = 0.4727
+[Movies LightGCN Round 8] hr_5 = 0.5763, ndcg_5 = 0.4454, hr_10 = 0.6735, ndcg_10 = 0.4769
+[Movies LightGCN Round 9] hr_5 = 0.5764, ndcg_5 = 0.4445, hr_10 = 0.6712, ndcg_10 = 0.4752
+[Movies LightGCN Round 10] hr_5 = 0.5742, ndcg_5 = 0.4427, hr_10 = 0.6723, ndcg_10 = 0.4744
+[Movies LightGCN Round 11] hr_5 = 0.5745, ndcg_5 = 0.4418, hr_10 = 0.6757, ndcg_10 = 0.4745
+[Movies LightGCN Round 12] hr_5 = 0.5720, ndcg_5 = 0.4388, hr_10 = 0.6735, ndcg_10 = 0.4716
+[Movies LightGCN Round 13] hr_5 = 0.5718, ndcg_5 = 0.4352, hr_10 = 0.6754, ndcg_10 = 0.4687
+[Movies LightGCN Round 14] hr_5 = 0.5682, ndcg_5 = 0.4303, hr_10 = 0.6709, ndcg_10 = 0.4635
+[Movies LightGCN Round 15] hr_5 = 0.5666, ndcg_5 = 0.4290, hr_10 = 0.6689, ndcg_10 = 0.4621
+[Movies LightGCN Round 16] hr_5 = 0.5622, ndcg_5 = 0.4248, hr_10 = 0.6665, ndcg_10 = 0.4585
+[Movies LightGCN Round 17] hr_5 = 0.5599, ndcg_5 = 0.4200, hr_10 = 0.6655, ndcg_10 = 0.4542
+[Movies LightGCN Round 18] hr_5 = 0.5573, ndcg_5 = 0.4163, hr_10 = 0.6666, ndcg_10 = 0.4517
+[Movies LightGCN Round 19] hr_5 = 0.5547, ndcg_5 = 0.4140, hr_10 = 0.6633, ndcg_10 = 0.4491
+[Movies LightGCN Round 20] hr_5 = 0.5515, ndcg_5 = 0.4096, hr_10 = 0.6610, ndcg_10 = 0.4450
+[Movies LightGCN Round 21] hr_5 = 0.5501, ndcg_5 = 0.4090, hr_10 = 0.6621, ndcg_10 = 0.4451
+[Movies LightGCN Round 22] hr_5 = 0.5479, ndcg_5 = 0.4071, hr_10 = 0.6610, ndcg_10 = 0.4436
+[Movies LightGCN Round 23] hr_5 = 0.5443, ndcg_5 = 0.4038, hr_10 = 0.6596, ndcg_10 = 0.4410
+[Movies LightGCN Round 24] hr_5 = 0.5408, ndcg_5 = 0.3999, hr_10 = 0.6592, ndcg_10 = 0.4381
+[Movies LightGCN Round 25] hr_5 = 0.5402, ndcg_5 = 0.3980, hr_10 = 0.6582, ndcg_10 = 0.4361
+[Movies LightGCN Round 26] hr_5 = 0.5396, ndcg_5 = 0.3964, hr_10 = 0.6559, ndcg_10 = 0.4340
+[Movies LightGCN Round 27] hr_5 = 0.5403, ndcg_5 = 0.3951, hr_10 = 0.6566, ndcg_10 = 0.4326
+[Movies LightGCN Round 28] hr_5 = 0.5423, ndcg_5 = 0.3958, hr_10 = 0.6552, ndcg_10 = 0.4323
+[Movies LightGCN Round 29] hr_5 = 0.5407, ndcg_5 = 0.3944, hr_10 = 0.6574, ndcg_10 = 0.4320
+[CDs LightGCN Round 0] hr_5 = 0.1252, ndcg_5 = 0.0864, hr_10 = 0.1933, ndcg_10 = 0.1082
+[CDs LightGCN Round 1] hr_5 = 0.1992, ndcg_5 = 0.1431, hr_10 = 0.2872, ndcg_10 = 0.1714
+[CDs LightGCN Round 2] hr_5 = 0.2604, ndcg_5 = 0.1814, hr_10 = 0.3506, ndcg_10 = 0.2106
+[CDs LightGCN Round 3] hr_5 = 0.3041, ndcg_5 = 0.2159, hr_10 = 0.4018, ndcg_10 = 0.2475
+[CDs LightGCN Round 4] hr_5 = 0.3347, ndcg_5 = 0.2318, hr_10 = 0.4421, ndcg_10 = 0.2666
+[CDs LightGCN Round 5] hr_5 = 0.3597, ndcg_5 = 0.2452, hr_10 = 0.4771, ndcg_10 = 0.2833
+[CDs LightGCN Round 6] hr_5 = 0.3706, ndcg_5 = 0.2550, hr_10 = 0.4973, ndcg_10 = 0.2962
+[CDs LightGCN Round 7] hr_5 = 0.3850, ndcg_5 = 0.2655, hr_10 = 0.5055, ndcg_10 = 0.3046
+[CDs LightGCN Round 8] hr_5 = 0.3896, ndcg_5 = 0.2684, hr_10 = 0.5151, ndcg_10 = 0.3091
+[CDs LightGCN Round 9] hr_5 = 0.3865, ndcg_5 = 0.2700, hr_10 = 0.5148, ndcg_10 = 0.3117
+[CDs LightGCN Round 10] hr_5 = 0.3921, ndcg_5 = 0.2731, hr_10 = 0.5239, ndcg_10 = 0.3160
+[CDs LightGCN Round 11] hr_5 = 0.4027, ndcg_5 = 0.2745, hr_10 = 0.5283, ndcg_10 = 0.3153
+[CDs LightGCN Round 12] hr_5 = 0.4052, ndcg_5 = 0.2761, hr_10 = 0.5326, ndcg_10 = 0.3174
+[CDs LightGCN Round 13] hr_5 = 0.4096, ndcg_5 = 0.2773, hr_10 = 0.5392, ndcg_10 = 0.3191
+[CDs LightGCN Round 14] hr_5 = 0.4109, ndcg_5 = 0.2795, hr_10 = 0.5417, ndcg_10 = 0.3218
+[CDs LightGCN Round 15] hr_5 = 0.4093, ndcg_5 = 0.2798, hr_10 = 0.5439, ndcg_10 = 0.3233
+[CDs LightGCN Round 16] hr_5 = 0.4118, ndcg_5 = 0.2806, hr_10 = 0.5445, ndcg_10 = 0.3235
+[CDs LightGCN Round 17] hr_5 = 0.4140, ndcg_5 = 0.2837, hr_10 = 0.5439, ndcg_10 = 0.3257
+[CDs LightGCN Round 18] hr_5 = 0.4134, ndcg_5 = 0.2837, hr_10 = 0.5498, ndcg_10 = 0.3279
+[CDs LightGCN Round 19] hr_5 = 0.4146, ndcg_5 = 0.2870, hr_10 = 0.5473, ndcg_10 = 0.3302
+[CDs LightGCN Round 20] hr_5 = 0.4143, ndcg_5 = 0.2880, hr_10 = 0.5504, ndcg_10 = 0.3322
+[CDs LightGCN Round 21] hr_5 = 0.4143, ndcg_5 = 0.2866, hr_10 = 0.5489, ndcg_10 = 0.3305
+[CDs LightGCN Round 22] hr_5 = 0.4174, ndcg_5 = 0.2889, hr_10 = 0.5551, ndcg_10 = 0.3336
+[CDs LightGCN Round 23] hr_5 = 0.4209, ndcg_5 = 0.2918, hr_10 = 0.5517, ndcg_10 = 0.3343
+[CDs LightGCN Round 24] hr_5 = 0.4184, ndcg_5 = 0.2916, hr_10 = 0.5526, ndcg_10 = 0.3354
+[CDs LightGCN Round 25] hr_5 = 0.4234, ndcg_5 = 0.2937, hr_10 = 0.5570, ndcg_10 = 0.3371
+[CDs LightGCN Round 26] hr_5 = 0.4221, ndcg_5 = 0.2919, hr_10 = 0.5560, ndcg_10 = 0.3353
+[CDs LightGCN Round 27] hr_5 = 0.4184, ndcg_5 = 0.2915, hr_10 = 0.5582, ndcg_10 = 0.3370
+[CDs LightGCN Round 28] hr_5 = 0.4165, ndcg_5 = 0.2899, hr_10 = 0.5613, ndcg_10 = 0.3369
+[CDs LightGCN Round 29] hr_5 = 0.4184, ndcg_5 = 0.2917, hr_10 = 0.5604, ndcg_10 = 0.3376
+[Books LightGCN Round 0] hr_5 = 0.6004, ndcg_5 = 0.4297, hr_10 = 0.7167, ndcg_10 = 0.4292
+[Books LightGCN Round 1] hr_5 = 0.5860, ndcg_5 = 0.4220, hr_10 = 0.6997, ndcg_10 = 0.4168
+[Books LightGCN Round 2] hr_5 = 0.5778, ndcg_5 = 0.4162, hr_10 = 0.6840, ndcg_10 = 0.4285
+[Books LightGCN Round 3] hr_5 = 0.5735, ndcg_5 = 0.4189, hr_10 = 0.6702, ndcg_10 = 0.4322
+[Books LightGCN Round 4] hr_5 = 0.5656, ndcg_5 = 0.4129, hr_10 = 0.6559, ndcg_10 = 0.4233
+[Books LightGCN Round 5] hr_5 = 0.5590, ndcg_5 = 0.4156, hr_10 = 0.6436, ndcg_10 = 0.4221
+[Books LightGCN Round 6] hr_5 = 0.5478, ndcg_5 = 0.4119, hr_10 = 0.6393, ndcg_10 = 0.4185
+[Books LightGCN Round 7] hr_5 = 0.5466, ndcg_5 = 0.4118, hr_10 = 0.6347, ndcg_10 = 0.4132
+[Books LightGCN Round 8] hr_5 = 0.5464, ndcg_5 = 0.4119, hr_10 = 0.6335, ndcg_10 = 0.4104
+[Books LightGCN Round 9] hr_5 = 0.5400, ndcg_5 = 0.4080, hr_10 = 0.6325, ndcg_10 = 0.4045
+[Books LightGCN Round 10] hr_5 = 0.5410, ndcg_5 = 0.4013, hr_10 = 0.6321, ndcg_10 = 0.3954
+[Books LightGCN Round 11] hr_5 = 0.5382, ndcg_5 = 0.4023, hr_10 = 0.6277, ndcg_10 = 0.3939
+[Books LightGCN Round 12] hr_5 = 0.5389, ndcg_5 = 0.4014, hr_10 = 0.6262, ndcg_10 = 0.3897
+[Books LightGCN Round 13] hr_5 = 0.5334, ndcg_5 = 0.4012, hr_10 = 0.6225, ndcg_10 = 0.3880
+[Books LightGCN Round 14] hr_5 = 0.5307, ndcg_5 = 0.3935, hr_10 = 0.6206, ndcg_10 = 0.3784
+[Books LightGCN Round 15] hr_5 = 0.5167, ndcg_5 = 0.3852, hr_10 = 0.6106, ndcg_10 = 0.3714
+[Books LightGCN Round 16] hr_5 = 0.5208, ndcg_5 = 0.3879, hr_10 = 0.6134, ndcg_10 = 0.3731
+[Books LightGCN Round 17] hr_5 = 0.5208, ndcg_5 = 0.3910, hr_10 = 0.6136, ndcg_10 = 0.3762
+[Books LightGCN Round 18] hr_5 = 0.5165, ndcg_5 = 0.3880, hr_10 = 0.6135, ndcg_10 = 0.3736
+[Books LightGCN Round 19] hr_5 = 0.5194, ndcg_5 = 0.3881, hr_10 = 0.6124, ndcg_10 = 0.3714
+[Books LightGCN Round 20] hr_5 = 0.5145, ndcg_5 = 0.3876, hr_10 = 0.6096, ndcg_10 = 0.3710
+[Books LightGCN Round 21] hr_5 = 0.5132, ndcg_5 = 0.3867, hr_10 = 0.6093, ndcg_10 = 0.3707
+[Books LightGCN Round 22] hr_5 = 0.5134, ndcg_5 = 0.3878, hr_10 = 0.6084, ndcg_10 = 0.3709
+[Books LightGCN Round 23] hr_5 = 0.5110, ndcg_5 = 0.3861, hr_10 = 0.6060, ndcg_10 = 0.3699
+[Books LightGCN Round 24] hr_5 = 0.5134, ndcg_5 = 0.3849, hr_10 = 0.6056, ndcg_10 = 0.3672
+[Books LightGCN Round 25] hr_5 = 0.5147, ndcg_5 = 0.3841, hr_10 = 0.6055, ndcg_10 = 0.3659
+[Books LightGCN Round 26] hr_5 = 0.5149, ndcg_5 = 0.3850, hr_10 = 0.6042, ndcg_10 = 0.3666
+[Books LightGCN Round 27] hr_5 = 0.5132, ndcg_5 = 0.3816, hr_10 = 0.6035, ndcg_10 = 0.3630
+[Books LightGCN Round 28] hr_5 = 0.5086, ndcg_5 = 0.3766, hr_10 = 0.6015, ndcg_10 = 0.3587
+[Books LightGCN Round 29] hr_5 = 0.5076, ndcg_5 = 0.3770, hr_10 = 0.5992, ndcg_10 = 0.3585
+[Books Fine-tuning Round 0] hr_5 = 0.6033, ndcg_5 = 0.4288, hr_10 =0.7244, ndcg_10 = 0.4449
+[Books Fine-tuning Round 1] hr_5 = 0.6095, ndcg_5 = 0.4276, hr_10 =0.7312, ndcg_10 = 0.4590
+[Books Fine-tuning Round 2] hr_5 = 0.6168, ndcg_5 = 0.4363, hr_10 =0.7348, ndcg_10 = 0.4700
+[Books Fine-tuning Round 3] hr_5 = 0.6218, ndcg_5 = 0.4457, hr_10 =0.7364, ndcg_10 = 0.4790
+[Books Fine-tuning Round 4] hr_5 = 0.6266, ndcg_5 = 0.4527, hr_10 =0.7394, ndcg_10 = 0.4869
+[Books Fine-tuning Round 5] hr_5 = 0.6326, ndcg_5 = 0.4641, hr_10 =0.7411, ndcg_10 = 0.4972
+[Books Fine-tuning Round 6] hr_5 = 0.6364, ndcg_5 = 0.4705, hr_10 =0.7412, ndcg_10 = 0.5026
+[Books Fine-tuning Round 7] hr_5 = 0.6382, ndcg_5 = 0.4792, hr_10 =0.7432, ndcg_10 = 0.5116
+[Books Fine-tuning Round 8] hr_5 = 0.6381, ndcg_5 = 0.4815, hr_10 =0.7422, ndcg_10 = 0.5135
+[Books Fine-tuning Round 9] hr_5 = 0.6382, ndcg_5 = 0.4833, hr_10 =0.7418, ndcg_10 = 0.5150
+[Books Fine-tuning Round 10] hr_5 = 0.6402, ndcg_5 = 0.4878, hr_10 =0.7410, ndcg_10 = 0.5186
+[Books Fine-tuning Round 11] hr_5 = 0.6416, ndcg_5 = 0.4924, hr_10 =0.7403, ndcg_10 = 0.5223
+[Books Fine-tuning Round 12] hr_5 = 0.6409, ndcg_5 = 0.4953, hr_10 =0.7402, ndcg_10 = 0.5253
+[Books Fine-tuning Round 13] hr_5 = 0.6385, ndcg_5 = 0.4942, hr_10 =0.7379, ndcg_10 = 0.5242
+[Books Fine-tuning Round 14] hr_5 = 0.6384, ndcg_5 = 0.4944, hr_10 =0.7384, ndcg_10 = 0.5245
+[Books Fine-tuning Round 15] hr_5 = 0.6388, ndcg_5 = 0.4951, hr_10 =0.7394, ndcg_10 = 0.5254
+[Books Fine-tuning Round 16] hr_5 = 0.6395, ndcg_5 = 0.4970, hr_10 =0.7392, ndcg_10 = 0.5266
+[Books Fine-tuning Round 17] hr_5 = 0.6394, ndcg_5 = 0.4983, hr_10 =0.7387, ndcg_10 = 0.5278
+[Books Fine-tuning Round 18] hr_5 = 0.6382, ndcg_5 = 0.4987, hr_10 =0.7373, ndcg_10 = 0.5283
+[Books Fine-tuning Round 19] hr_5 = 0.6364, ndcg_5 = 0.4998, hr_10 =0.7359, ndcg_10 = 0.5297
+[Books Fine-tuning Round 20] hr_5 = 0.6355, ndcg_5 = 0.4976, hr_10 =0.7366, ndcg_10 = 0.5281
+[Books Fine-tuning Round 21] hr_5 = 0.6352, ndcg_5 = 0.4970, hr_10 =0.7360, ndcg_10 = 0.5273
+[Books Fine-tuning Round 22] hr_5 = 0.6361, ndcg_5 = 0.4974, hr_10 =0.7367, ndcg_10 = 0.5275
+[Books Fine-tuning Round 23] hr_5 = 0.6345, ndcg_5 = 0.4952, hr_10 =0.7358, ndcg_10 = 0.5257
+[Books Fine-tuning Round 24] hr_5 = 0.6345, ndcg_5 = 0.4953, hr_10 =0.7366, ndcg_10 = 0.5260
+[Books Fine-tuning Round 25] hr_5 = 0.6343, ndcg_5 = 0.4973, hr_10 =0.7360, ndcg_10 = 0.5278
+[Books Fine-tuning Round 26] hr_5 = 0.6344, ndcg_5 = 0.5000, hr_10 =0.7345, ndcg_10 = 0.5301
+[Books Fine-tuning Round 27] hr_5 = 0.6374, ndcg_5 = 0.5041, hr_10 =0.7346, ndcg_10 = 0.5334
+[Books Fine-tuning Round 28] hr_5 = 0.6378, ndcg_5 = 0.5043, hr_10 =0.7352, ndcg_10 = 0.5337
+[Books Fine-tuning Round 29] hr_5 = 0.6370, ndcg_5 = 0.5036, hr_10 =0.7354, ndcg_10 = 0.5336
+[Books Fine-tuning Round 30] hr_5 = 0.6392, ndcg_5 = 0.5050, hr_10 =0.7362, ndcg_10 = 0.5342
+[Books Fine-tuning Round 31] hr_5 = 0.6384, ndcg_5 = 0.5042, hr_10 =0.7351, ndcg_10 = 0.5333
+[Books Fine-tuning Round 32] hr_5 = 0.6391, ndcg_5 = 0.5053, hr_10 =0.7337, ndcg_10 = 0.5337
+[Books Fine-tuning Round 33] hr_5 = 0.6370, ndcg_5 = 0.5044, hr_10 =0.7337, ndcg_10 = 0.5335
+[Books Fine-tuning Round 34] hr_5 = 0.6369, ndcg_5 = 0.5043, hr_10 =0.7340, ndcg_10 = 0.5336
+[Books Fine-tuning Round 35] hr_5 = 0.6356, ndcg_5 = 0.5034, hr_10 =0.7338, ndcg_10 = 0.5333
+[Books Fine-tuning Round 36] hr_5 = 0.6359, ndcg_5 = 0.5025, hr_10 =0.7354, ndcg_10 = 0.5330
+[Books Fine-tuning Round 37] hr_5 = 0.6358, ndcg_5 = 0.5030, hr_10 =0.7354, ndcg_10 = 0.5334
+[Books Fine-tuning Round 38] hr_5 = 0.6342, ndcg_5 = 0.5016, hr_10 =0.7349, ndcg_10 = 0.5323
+[Books Fine-tuning Round 39] hr_5 = 0.6357, ndcg_5 = 0.5034, hr_10 =0.7373, ndcg_10 = 0.5346
+[Books Fine-tuning Round 40] hr_5 = 0.6368, ndcg_5 = 0.5035, hr_10 =0.7371, ndcg_10 = 0.5341
+[Books Fine-tuning Round 41] hr_5 = 0.6360, ndcg_5 = 0.5017, hr_10 =0.7371, ndcg_10 = 0.5328
+[Books Fine-tuning Round 42] hr_5 = 0.6337, ndcg_5 = 0.5002, hr_10 =0.7355, ndcg_10 = 0.5315
+[Books Fine-tuning Round 43] hr_5 = 0.6326, ndcg_5 = 0.5000, hr_10 =0.7354, ndcg_10 = 0.5317
+[Books Fine-tuning Round 44] hr_5 = 0.6335, ndcg_5 = 0.5009, hr_10 =0.7352, ndcg_10 = 0.5324
+[Books Fine-tuning Round 45] hr_5 = 0.6362, ndcg_5 = 0.5027, hr_10 =0.7368, ndcg_10 = 0.5337
+[Books Fine-tuning Round 46] hr_5 = 0.6362, ndcg_5 = 0.5020, hr_10 =0.7342, ndcg_10 = 0.5322
+[Books Fine-tuning Round 47] hr_5 = 0.6379, ndcg_5 = 0.5046, hr_10 =0.7347, ndcg_10 = 0.5345
+[Books Fine-tuning Round 48] hr_5 = 0.6373, ndcg_5 = 0.5027, hr_10 =0.7352, ndcg_10 = 0.5332
+[Books Fine-tuning Round 49] hr_5 = 0.6378, ndcg_5 = 0.5038, hr_10 =0.7347, ndcg_10 = 0.5340
+[Books Fine-tuning Round 50] hr_5 = 0.6371, ndcg_5 = 0.5017, hr_10 =0.7343, ndcg_10 = 0.5321
+[Books Fine-tuning Round 51] hr_5 = 0.6389, ndcg_5 = 0.5044, hr_10 =0.7366, ndcg_10 = 0.5349
+[Books Fine-tuning Round 52] hr_5 = 0.6416, ndcg_5 = 0.5076, hr_10 =0.7366, ndcg_10 = 0.5373
+[Books Fine-tuning Round 53] hr_5 = 0.6401, ndcg_5 = 0.5052, hr_10 =0.7364, ndcg_10 = 0.5352
+[Books Fine-tuning Round 54] hr_5 = 0.6407, ndcg_5 = 0.5054, hr_10 =0.7364, ndcg_10 = 0.5352
+[Books Fine-tuning Round 55] hr_5 = 0.6417, ndcg_5 = 0.5076, hr_10 =0.7350, ndcg_10 = 0.5370
+[Books Fine-tuning Round 56] hr_5 = 0.6404, ndcg_5 = 0.5062, hr_10 =0.7363, ndcg_10 = 0.5364
+[Books Fine-tuning Round 57] hr_5 = 0.6405, ndcg_5 = 0.5062, hr_10 =0.7351, ndcg_10 = 0.5362
+[Books Fine-tuning Round 58] hr_5 = 0.6407, ndcg_5 = 0.5055, hr_10 =0.7353, ndcg_10 = 0.5355
+[Books Fine-tuning Round 59] hr_5 = 0.6380, ndcg_5 = 0.5039, hr_10 =0.7340, ndcg_10 = 0.5343
+7
+hr_5 = 0.6416683457586138, ndcg_5 = 0.5075985731916179, hr_10 = 0.7431795285109812, ndcg_10 = 0.5373449069992948
