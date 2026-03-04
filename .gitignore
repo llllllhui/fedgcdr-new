@@ -43,13 +43,12 @@ env/
 *.ipynb
 
 # Project specific
-# output/
-# checkpoints/
-# embedding/
-# knowledge_hr/
-# knowledge_64/
-# data/
-# *.out
+output/
+checkpoints/
+embedding/
+knowledge_hr/
+knowledge_64/
+*.out
 *.sh
 
 # OS
