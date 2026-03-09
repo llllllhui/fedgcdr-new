@@ -70,3 +70,6 @@ logs/
 .pytest_cache/
 .coverage
 htmlcov/
+FedGCDR.pdf
+开题报告/
+.gitignore
