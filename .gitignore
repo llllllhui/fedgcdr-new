@@ -76,3 +76,4 @@ FedGCDR.pdf
 data/
 data/4domains/domain_user.json
 data/4domains/implicit.json
+tests/test_gcn_registration.py

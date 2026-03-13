@@ -51,6 +51,15 @@ class CheckpointManager:
             print(f"删除旧checkpoint: {checkpoint_path}")
             shutil.rmtree(checkpoint_path)
 
+    @staticmethod
+    def _get_item_model_attr(gnn_type):
+        """Map a gnn_type to the model attribute stored on server instances."""
+        if gnn_type in ['graphsage', 'simgcl', 'gcn']:
+            return 'gnn_model'
+        if gnn_type == 'lightgcn':
+            return 'item_lightgcn'
+        return 'item_gat'
+
     def save_kg_checkpoint(self, servers, clients, args, metrics=None):
         """
         保存知识获取阶段checkpoint
@@ -88,12 +97,7 @@ class CheckpointManager:
         # 2. 保存每个域的模型状态
         # 根据gnn_type获取模型属性名
         gnn_type = getattr(args, 'gnn_type', 'gat')
-        if gnn_type in ['graphsage', 'simgcl']:
-            item_model_attr = 'gnn_model'
-        elif gnn_type == 'lightgcn':
-            item_model_attr = 'item_lightgcn'
-        else:  # gat
-            item_model_attr = 'item_gat'
+        item_model_attr = self._get_item_model_attr(gnn_type)
 
         model_states = {}
         for i, server in enumerate(servers):
@@ -191,12 +195,7 @@ class CheckpointManager:
         # 2. 保存所有域的模型状态（继承知识获取阶段）
         # 根据gnn_type获取模型属性名
         gnn_type = getattr(args, 'gnn_type', 'gat')
-        if gnn_type in ['graphsage', 'simgcl']:
-            item_model_attr = 'gnn_model'
-        elif gnn_type == 'lightgcn':
-            item_model_attr = 'item_lightgcn'
-        else:  # gat
-            item_model_attr = 'item_gat'
+        item_model_attr = self._get_item_model_attr(gnn_type)
 
         model_states = {}
         for i, server in enumerate(servers):
