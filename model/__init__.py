@@ -104,5 +104,17 @@ def _register_builtin_models():
     except ImportError:
         pass
 
+    # 注册 GCN 模型
+    try:
+        from .gcn.model import GCN, MLP as GCNMLP
+        from .gcn.party import Server as GCNServer, Client as GCNClient
+
+        MODEL_REGISTRY.register('gcn')(GCN)
+        MODEL_REGISTRY.register('gcn_mlp')(GCNMLP)
+        SERVER_REGISTRY.register('gcn')(GCNServer)
+        CLIENT_REGISTRY.register('gcn')(GCNClient)
+    except ImportError:
+        pass
+
 
 _register_builtin_models()

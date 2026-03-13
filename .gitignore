@@ -73,3 +73,6 @@ htmlcov/
 FedGCDR.pdf
 开题报告/
 .gitignore
+data/
+data/4domains/domain_user.json
+data/4domains/implicit.json

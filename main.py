@@ -39,7 +39,8 @@ def get_model_display_name(gnn_type):
         'gat': 'GAT',
         'lightgcn': 'LightGCN',
         'graphsage': 'GraphSAGE',
-        'simgcl': 'SimGCL'
+        'simgcl': 'SimGCL',
+        'gcn': 'GCN',
     }
     return model_names.get(gnn_type, gnn_type.upper())
 
@@ -61,8 +62,8 @@ parser.add_argument('--weight_decay', type=float, default=1e-4)
 parser.add_argument('--num_negative', type=int, default=4)
 parser.add_argument('--user_batch', type=int, default=16)
 parser.add_argument('--model', type=str, default='fedgcdr')
-parser.add_argument('--gnn_type', type=str, default='lightgcn', 
-                    choices=['gat', 'lightgcn', 'graphsage', 'simgcl'],
+parser.add_argument('--gnn_type', type=str, default='gcn', 
+                    choices=['gat', 'lightgcn', 'graphsage', 'simgcl', 'gcn'],
                     help='选择使用的图神经网络模型: gat或lightgcn')
 parser.add_argument('--knowledge', type=bool, default=False)
 parser.add_argument('--only_ft', type=bool, default=False)
