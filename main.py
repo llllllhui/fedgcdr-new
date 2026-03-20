@@ -48,13 +48,13 @@ warnings.filterwarnings('ignore')
 
 parser = argparse.ArgumentParser(description='args for fedgcdr')
 parser.add_argument('--dataset', choices=['amazon', 'douban'], default='amazon')
-parser.add_argument('--round_gat', type=int, default=1)
-parser.add_argument('--round_ft', type=int, default=2)
-parser.add_argument('--num_domain', type=int, default=4)
+parser.add_argument('--round_gat', type=int, default=30)
+parser.add_argument('--round_ft', type=int, default=60)
+parser.add_argument('--num_domain', type=int, default=8)
 parser.add_argument('--device', type=str, default='cuda:0')
 parser.add_argument('--target_domain', type=int, default=1)
 parser.add_argument('--lr_mf', type=float, default=0.005)
-parser.add_argument('--lr_gnn', type=float, default=0.01,
+parser.add_argument('--lr_gnn', type=float, default=0.001,
                     help='GNN模型统一学习率')
 parser.add_argument('--embedding_size', type=int, default=16)
 parser.add_argument('--local_epoch', type=int, default=3)
@@ -62,7 +62,7 @@ parser.add_argument('--weight_decay', type=float, default=1e-4)
 parser.add_argument('--num_negative', type=int, default=4)
 parser.add_argument('--user_batch', type=int, default=16)
 parser.add_argument('--model', type=str, default='fedgcdr')
-parser.add_argument('--gnn_type', type=str, default='gcn', 
+parser.add_argument('--gnn_type', type=str, default='gat', 
                     choices=['gat', 'lightgcn', 'graphsage', 'simgcl', 'gcn'],
                     help='选择使用的图神经网络模型')
 parser.add_argument('--knowledge', type=bool, default=False)

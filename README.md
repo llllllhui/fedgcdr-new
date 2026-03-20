@@ -1,182 +1,119 @@
-# FedGCDR - 联邦跨域推荐系统
+# FedGCDR-New
 
-## 项目结构
+FedGCDR-New 是一个联邦跨域推荐实验项目，支持多种 GNN 编码器并提供完整的三阶段训练流程：
 
-```
-FedGCDR/
-├── model/                      # 模型目录
-│   ├── __init__.py            # 包初始化，自动注册内置模型
-│   ├── registry.py            # 模型注册表
-│   ├── base_model.py          # 模型基类接口
-│   ├── base_party.py          # Server/Client 基类
-│   │
-│   └── fedgcdr/               # FedGCDR 模型实现
-│       ├── __init__.py
-│       ├── model.py           # GAT 模型
-│       ├── lightgcn_model.py  # LightGCN 模型
-│       ├── party.py           # GAT 的 Server/Client
-│       └── party_lightgcn.py  # LightGCN 的 Server/Client
-│
-├── main.py                     # 主训练脚本
-├── utility.py                  # 工具函数
-├── checkpoint.py              # Checkpoint 管理
-└── requirements.txt           # 依赖
-```
+1. 知识获取（KG）
+2. 知识转移（KT）
+3. 目标域微调（FT）
 
-## 快速开始
+训练入口为 `main.py`，模型通过注册表动态加载。
 
-### 安装依赖
+## 环境要求
+
+- Python 3.10+
+- 建议使用 CUDA 环境运行（默认设备为 `cuda:0`）
+
+安装依赖：
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 训练模型
+> `requirements.txt` 仅声明了核心包（`numpy/pandas/tqdm/scikit-learn`），请按你的 CUDA/CPU 环境自行安装 PyTorch。
+
+## 项目结构
+
+```text
+fedgcdr-new/
+├── main.py                 # 训练入口（参数解析 + KG/KT/FT 流程）
+├── utility.py              # 数据集装载（amazon/douban）
+├── checkpoint.py           # Checkpoint 保存/加载/恢复
+├── Data_Proc.py            # Amazon 数据预处理脚本（4/8/16 域）
+├── model/
+│   ├── __init__.py         # 自动注册内置模型
+│   ├── registry.py         # MODEL/SERVER/CLIENT 注册表
+│   ├── base_model.py
+│   ├── base_party.py
+│   ├── fedgcdr/            # 原始 GAT 相关实现
+│   ├── lightgcn/
+│   ├── graphsage/
+│   ├── simgcl/
+│   └── gcn/
+├── data/                   # 训练数据
+├── checkpoints/            # 阶段 checkpoint（KG/KT）
+├── output/                 # 训练日志输出
+├── embedding/              # 目标域嵌入产物
+└── knowledge_64/           # 知识文件
+```
+
+## 快速开始
+
+### 1) 查看可用 checkpoint
 
 ```bash
-# 使用 LightGCN 模型
-python main.py --gnn_type lightgcn --target_domain 1
-
-# 使用 GAT 模型
-python main.py --gnn_type gat --target_domain 1
-
-# 使用 GraphSAGE 模型 (待实现)
-python main.py --gnn_type graphsage --target_domain 1
-
-# 使用 SimGCL 模型 (待实现)
-python main.py --gnn_type simgcl --target_domain 1
+python main.py --list_checkpoints
 ```
 
-### 主要参数
-
-| 参数 | 说明 | 默认值 |
-|------|------|--------|
-| `--gnn_type` | 模型类型 | lightgcn |
-| `--dataset` | 数据集 | amazon |
-| `--num_domain` | 域数量 | 4 |
-| `--target_domain` | 目标域 | 1 |
-| `--embedding_size` | 嵌入维度 | 16 |
-| `--round_gat` | GNN 训练轮数 | 30 |
-| `--round_ft` | 微调轮数 | 60 |
-
-## 添加新模型
-
-### 1. 创建模型目录
+### 2) 直接训练（示例）
 
 ```bash
-mkdir model/graphsage
+python main.py --gnn_type lightgcn --dataset amazon --num_domain 8 --target_domain 1
 ```
 
-### 2. 实现模型类
-
-```python
-# model/graphsage/model.py
-import torch
-import torch.nn as nn
-from model.base_model import BaseGNNLayer, BaseGNNModel
-from model.registry import MODEL_REGISTRY
-
-@MODEL_REGISTRY.register('graphsage')
-class GraphSAGE(BaseGNNModel):
-    def __init__(self, args, in_feature, hid_feature=16, out_feature=16):
-        super().__init__(args, in_feature, hid_feature, out_feature)
-        # 实现你的模型
-    
-    def forward(self, x, is_transfer_stage=False, 
-                domain_attention=None, transfer_vec=None):
-        # 实现前向传播
-        pass
-```
-
-### 3. 实现 Server/Client
-
-```python
-# model/graphsage/party.py
-from model.base_party import BaseServer, BaseClient
-from model.registry import SERVER_REGISTRY, CLIENT_REGISTRY
-from .model import GraphSAGE
-
-@SERVER_REGISTRY.register('graphsage')
-class Server(BaseServer):
-    def __init__(self, id, d_name, num_m, total_clients, clients, 
-                 evaluate_data, user_dic, args):
-        super().__init__(id, d_name, num_m, total_clients, clients, 
-                        evaluate_data, user_dic, args)
-        self.gnn_model = GraphSAGE(args, args.embedding_size)
-    
-    def get_gnn_model(self):
-        return self.gnn_model
-    
-    def test_gnn(self, epoch_id):
-        self.gnn_model.eval()
-        return self.test(self.user_embedding_with_attention, self.V, epoch_id)
-    
-    def kt_stage(self, tf_flag=False, **kwargs):
-        # 实现知识转移逻辑
-        pass
-
-@CLIENT_REGISTRY.register('graphsage')
-class Client(BaseClient):
-    def __init__(self, id, train_data, num_m, rating_mean, domain_names, args):
-        super().__init__(id, train_data, num_m, rating_mean, domain_names, args)
-        self.gnn_model = None
-    
-    def get_gnn_model(self):
-        return self.gnn_model
-    
-    def train_gnn(self, **kwargs):
-        # 实现训练逻辑
-        pass
-```
-
-### 4. 注册 MLP
-
-```python
-# model/graphsage/model.py (续)
-from model.base_model import BaseMLP
-from model.registry import MODEL_REGISTRY
-
-@MODEL_REGISTRY.register('graphsage_mlp')
-class MLP(BaseMLP):
-    def __init__(self, in_feature):
-        super().__init__(in_feature)
-```
-
-### 5. 运行训练
+### 3) 从 KG 阶段恢复
 
 ```bash
-python main.py --gnn_type graphsage --target_domain 1
+python main.py --gnn_type lightgcn --resume_from kg --checkpoint_path checkpoints/<kg_checkpoint_dir>
 ```
 
-## 查看可用模型
+### 4) 从 KT 阶段恢复
 
-```python
-from model.registry import list_all_models
-print(list_all_models())
+```bash
+python main.py --gnn_type lightgcn --resume_from kt --checkpoint_path checkpoints/<kt_checkpoint_dir>
 ```
 
 ## 可用模型
 
-| 模型 | 描述 | 状态 |
-|------|------|------|
-| `gat` | 图注意力网络 | ✅ 已实现 |
-| `lightgcn` | 轻量级图卷积 | ✅ 已实现 |
-| `graphsage` | 图采样网络 | 🔄 待实现 |
-| `simgcl` | 简单图对比学习 | 🔄 待实现 |
+`main.py --gnn_type` 当前支持：
 
-## Checkpoint 管理
+- `gat`
+- `lightgcn`
+- `graphsage`
+- `simgcl`
+- `gcn`
 
-```bash
-# 列出可用 checkpoint
-python main.py --list_checkpoints
+模型、Server、Client 通过 `model/registry.py` 统一管理，并在 `model/__init__.py` 自动注册。
 
-# 从知识获取阶段恢复
-python main.py --resume_from kg --checkpoint_path checkpoints/kg_xxx.pt
+## 关键参数（以 `main.py` 为准）
 
-# 从知识转移阶段恢复
-python main.py --resume_from kt --checkpoint_path checkpoints/kt_xxx.pt
-```
+| 参数 | 说明 | 默认值 |
+|---|---|---|
+| `--dataset` | 数据集 | `amazon` |
+| `--num_domain` | 域数量 | `8` |
+| `--target_domain` | 目标域索引 | `1` |
+| `--gnn_type` | GNN 类型 | `gat` |
+| `--round_gat` | KG/KT 阶段轮数 | `30` |
+| `--round_ft` | FT 阶段轮数 | `60` |
+| `--embedding_size` | 嵌入维度 | `16` |
+| `--device` | 训练设备 | `cuda:0` |
+| `--resume_from` | checkpoint 恢复阶段 | `kg` / `kt` |
+| `--checkpoint_path` | checkpoint 目录路径 | `None` |
+| `--random_seed` | 随机种子 | `42` |
+
+## 数据准备说明
+
+- `amazon`：由 `Data_Proc.py` 生成 `data/{4|8|16}domains` 下的 `implicit.json` 与 `domain_user.json`。
+- `douban`：`utility.py` 默认读取 `data/douban_oldver/` 下对应文件。
+
+训练前需确保对应数据文件已就位，否则会在数据加载阶段报错。
+
+## 训练输出
+
+- 日志：`output/*.out`（含参数与关键指标）
+- 指标：`hr_5 / ndcg_5 / hr_10 / ndcg_10`
+- checkpoint：`checkpoints/kg_*`、`checkpoints/kt_*`（默认最多保留最近 3 份）
+- 嵌入：`embedding/<model>/...json`
 
 ## 许可证
 
-MIT License
+MIT
