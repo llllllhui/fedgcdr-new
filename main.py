@@ -6,6 +6,8 @@ import os
 import json
 import importlib
 import subprocess
+import csv
+from pathlib import Path
 
 import math
 import argparse
@@ -14,6 +16,14 @@ import datetime
 import utility
 from checkpoint import CheckpointManager, restore_from_checkpoint, restore_target_domain
 from model import get_server_class, get_client_class, get_model_class, list_all_models
+
+try:
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    MATPLOTLIB_AVAILABLE = True
+except Exception:
+    MATPLOTLIB_AVAILABLE = False
 
 
 def get_git_commit_hash():
@@ -44,6 +54,92 @@ def get_model_display_name(gnn_type):
     }
     return model_names.get(gnn_type, gnn_type.upper())
 
+class LiveMetricsTracker:
+    """Update CSV and chart after each round for live tracking."""
+
+    def __init__(self, output_file, save_dir='output/figures/live', enabled=True, refresh_every=1):
+        self.enabled = enabled
+        self.refresh_every = max(1, int(refresh_every))
+        self.records = []
+        self.update_count = 0
+
+        output_stem = Path(output_file).stem
+        save_path = Path(save_dir)
+        save_path.mkdir(parents=True, exist_ok=True)
+
+        self.csv_path = save_path / f'{output_stem}_live_metrics.csv'
+        self.png_path = save_path / f'{output_stem}_live_metrics.png'
+
+        with open(self.csv_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(['step', 'stage', 'domain', 'round', 'hr_5', 'ndcg_5', 'hr_10', 'ndcg_10'])
+
+        self.plot_enabled = bool(self.enabled and MATPLOTLIB_AVAILABLE)
+
+    def update(self, stage, domain, round_idx, hr_5, ndcg_5, hr_10, ndcg_10):
+        if not self.enabled:
+            return
+
+        self.update_count += 1
+        step = len(self.records)
+        row = {
+            'step': step,
+            'stage': stage,
+            'domain': domain,
+            'round': int(round_idx),
+            'hr_5': float(hr_5),
+            'ndcg_5': float(ndcg_5),
+            'hr_10': float(hr_10),
+            'ndcg_10': float(ndcg_10),
+        }
+        self.records.append(row)
+
+        with open(self.csv_path, 'a', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow([
+                row['step'], row['stage'], row['domain'], row['round'],
+                f"{row['hr_5']:.6f}", f"{row['ndcg_5']:.6f}",
+                f"{row['hr_10']:.6f}", f"{row['ndcg_10']:.6f}",
+            ])
+
+        if self.plot_enabled and (self.update_count % self.refresh_every == 0):
+            self._render_plot()
+
+    def _render_plot(self):
+        if not self.records:
+            return
+
+        df = pd.DataFrame(self.records)
+        fig, axes = plt.subplots(2, 1, figsize=(12, 8), sharex=True)
+
+        axes[0].plot(df['step'], df['hr_5'], label='HR@5', color='#1f77b4', linewidth=2)
+        axes[0].plot(df['step'], df['hr_10'], label='HR@10', color='#2ca02c', linewidth=2)
+        axes[0].set_ylabel('HR')
+        axes[0].set_title('Live Recommendation Metrics')
+        axes[0].grid(True, alpha=0.3)
+        axes[0].legend(loc='lower right')
+
+        axes[1].plot(df['step'], df['ndcg_5'], label='NDCG@5', color='#ff7f0e', linewidth=2)
+        axes[1].plot(df['step'], df['ndcg_10'], label='NDCG@10', color='#d62728', linewidth=2)
+        axes[1].set_ylabel('NDCG')
+        axes[1].set_xlabel('Training Step (Across All Rounds)')
+        axes[1].grid(True, alpha=0.3)
+        axes[1].legend(loc='lower right')
+
+        stage_series = df['stage'].tolist()
+        for idx in range(1, len(stage_series)):
+            if stage_series[idx] != stage_series[idx - 1]:
+                for ax in axes:
+                    ax.axvline(idx, color='gray', linestyle='--', alpha=0.35)
+
+        plt.tight_layout()
+        fig.savefig(self.png_path, dpi=150)
+        plt.close(fig)
+
+    def finalize(self):
+        if self.plot_enabled:
+            self._render_plot()
+
 warnings.filterwarnings('ignore')
 
 parser = argparse.ArgumentParser(description='args for fedgcdr')
@@ -62,7 +158,7 @@ parser.add_argument('--weight_decay', type=float, default=1e-4)
 parser.add_argument('--num_negative', type=int, default=4)
 parser.add_argument('--user_batch', type=int, default=16)
 parser.add_argument('--model', type=str, default='fedgcdr')
-parser.add_argument('--gnn_type', type=str, default='gat', 
+parser.add_argument('--gnn_type', type=str, default='lightgcn', 
                     choices=['gat', 'lightgcn', 'graphsage', 'simgcl', 'gcn'],
                     help='选择使用的图神经网络模型')
 parser.add_argument('--knowledge', type=bool, default=False)
@@ -84,6 +180,12 @@ parser.add_argument('--list_checkpoints', action='store_true',
                     help='列出所有可用的checkpoint')
 parser.add_argument('--checkpoint_dir', type=str, default='checkpoints',
                     help='checkpoint保存目录')
+parser.add_argument('--live_plot', type=bool, default=True,
+                    help='Enable live metric chart updates during training')
+parser.add_argument('--live_plot_dir', type=str, default='output/figures/live',
+                    help='Directory for live chart and CSV outputs')
+parser.add_argument('--live_plot_refresh_every', type=int, default=1,
+                    help='Refresh chart every N rounds')
 args = parser.parse_args()
 
 # 设置随机种子，确保可复现性
@@ -153,6 +255,7 @@ skip_kt_training = args.resume_from == 'kt'  # 跳过知识转移阶段
 now = datetime.datetime.now()
 formatted_date_time = now.strftime("%Y-%m-%d %H:%M:%S").replace(' ', '_').replace(':', "_")
 formatted_date = now.strftime("%Y-%m-%d")
+os.makedirs('output', exist_ok=True)
 output_file = 'output/' + str(args.num_domain) + '_' + args.model + '_dp_' + str(args.dp) + '_tar_' + str(
     args.target_domain) + '_' + str(
     args.random_seed) + '_' + formatted_date_time + '.out'
@@ -164,6 +267,18 @@ with open(output_file, 'w') as f:
     f.write(str(args) + f'\nGit Commit: {git_commit_hash}\n')
 print(args)
 print(f'Git Commit: {git_commit_hash}')
+
+live_tracker = LiveMetricsTracker(
+    output_file=output_file,
+    save_dir=args.live_plot_dir,
+    enabled=args.live_plot,
+    refresh_every=args.live_plot_refresh_every,
+)
+if args.live_plot and not MATPLOTLIB_AVAILABLE:
+    print('Warning: matplotlib is unavailable; only live CSV will be written.')
+else:
+    print(f'Live chart path: {live_tracker.png_path}')
+    print(f'Live CSV path: {live_tracker.csv_path}')
 
 # load knowledge
 if args.resume_from == 'kg':
@@ -252,6 +367,7 @@ else:
             print(
                 f'[{server[it].domain_name} {model_name} Round {i}] hr_5 = {hr_5:.4f}, ndcg_5 = {ndcg_5:.4f}, hr_10 = {hr_10:.4f},'
                 f' ndcg_10 = {ndcg_10:.4f}\n')
+            live_tracker.update('KG', server[it].domain_name, i, hr_5, ndcg_5, hr_10, ndcg_10)
             if hr_10 > max_hr or (hr_10 == max_hr and ndcg_10 > max_ndcg):
                 no_improve = 0
                 epoch_id = i
@@ -313,6 +429,7 @@ if args.only_ft is False and not skip_kt_training:
         print(
             f'[{server[tar_domain].domain_name} {model_name} Round {i}] hr_5 = {hr_5:.4f}, ndcg_5 = {ndcg_5:.4f}, hr_10 = {hr_10:.4f},'
             f' ndcg_10 = {ndcg_10:.4f}\n')
+        live_tracker.update('KT', server[tar_domain].domain_name, i, hr_5, ndcg_5, hr_10, ndcg_10)
         if hr_10 > max_hr or (hr_10 == max_hr and ndcg_10 > max_ndcg):
             no_improve = 0
             epoch_id = i
@@ -373,6 +490,7 @@ for i in range(args.round_ft):
                 f'hr_10 ={hr_10:.4f}, ndcg_10 = {ndcg_10:.4f}\n')
     print(f'[{server[tar_domain].domain_name} Fine-tuning Round {i}] hr_5 = {hr_5:.4f}, ndcg_5 = {ndcg_5:.4f}, hr_10 = '
           f'{hr_10:.4f}, ndcg_10 = {ndcg_10:.4f}\n')
+    live_tracker.update('FT', server[tar_domain].domain_name, i, hr_5, ndcg_5, hr_10, ndcg_10)
     max_hr_5 = max(max_hr_5, hr_5)
     max_hr_10 = max(max_hr_10, hr_10)
     max_ndcg_5 = max(max_ndcg_5, ndcg_5)
@@ -388,5 +506,6 @@ for i in range(args.round_ft):
 with open(output_file, 'a') as f:
     f.write(str(epoch_id) + '\n')
     f.write(f'hr_5 = {max_hr_5}, ndcg_5 = {max_ndcg_5}, hr_10 = {max_hr_10}, ndcg_10 = {max_ndcg_10}')
+live_tracker.finalize()
 print(epoch_id)
 print(f'hr_5 = {max_hr_5}, ndcg_5 = {max_ndcg_5}, hr_10 = {max_hr_10}, ndcg_10 = {max_ndcg_10}')
