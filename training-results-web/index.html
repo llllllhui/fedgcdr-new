@@ -1,0 +1,77 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FedGCDR 训练结果看板</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="noise-layer"></div>
+  <main class="container">
+    <header class="hero">
+      <p class="badge">FedGCDR Training Monitor</p>
+      <h1>联邦跨域推荐训练结果展示</h1>
+      <p class="subtitle">选择 GNN 模型和源域数量后，即时查看该配置下的最新训练结果与每轮指标变化。</p>
+    </header>
+
+    <section class="panel controls">
+      <div class="control-group">
+        <label for="gnnSelect">GNN 模型</label>
+        <select id="gnnSelect"></select>
+      </div>
+      <div class="control-group">
+        <label for="domainSelect">源域数量</label>
+        <select id="domainSelect">
+          <option value="4">4</option>
+          <option value="8">8</option>
+          <option value="16">16</option>
+        </select>
+      </div>
+      <div class="control-group run-group">
+        <label for="runSelect">训练记录</label>
+        <select id="runSelect"></select>
+      </div>
+      <button id="loadBtn" class="load-btn" type="button">展示结果</button>
+    </section>
+
+    <section id="metaInfo" class="panel meta"></section>
+
+    <section id="statsGrid" class="stats-grid"></section>
+
+    <section class="panel chart-wrap">
+      <h2>目标域训练曲线（HR@10 / NDCG@10）</h2>
+      <canvas id="metricsChart" width="1200" height="380"></canvas>
+    </section>
+
+    <section class="panel table-wrap">
+      <h2>最新轮次各域指标</h2>
+      <div class="table-scroll">
+        <table id="metricsTable">
+          <thead>
+            <tr>
+              <th>Domain</th>
+              <th>Phase</th>
+              <th>Round</th>
+              <th>HR@5</th>
+              <th>NDCG@5</th>
+              <th>HR@10</th>
+              <th>NDCG@10</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="emptyState" class="panel empty hidden">
+      当前没有找到该模型 + 域数量对应的训练日志，请先运行训练或放入 `.out` 文件后重新生成数据。
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>

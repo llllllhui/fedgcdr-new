@@ -1,0 +1,251 @@
+﻿:root {
+  --bg: #f5f0e7;
+  --bg-2: #efe4d2;
+  --ink: #1c1a17;
+  --muted: #5d5850;
+  --accent: #be4a2f;
+  --accent-2: #0d6e6e;
+  --card: rgba(255, 250, 239, 0.88);
+  --line: rgba(28, 26, 23, 0.14);
+  --shadow: 0 22px 36px rgba(41, 30, 16, 0.14);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  font-family: "Barlow", "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 8% 15%, #f7e4c3 0%, transparent 44%),
+    radial-gradient(circle at 84% 12%, #d6efd7 0%, transparent 38%),
+    linear-gradient(160deg, var(--bg) 0%, var(--bg-2) 100%);
+}
+
+.noise-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.14;
+  background-image: radial-gradient(#000 0.45px, transparent 0.45px);
+  background-size: 3px 3px;
+}
+
+.container {
+  position: relative;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 30px 18px 52px;
+}
+
+.hero {
+  animation: revealDown 0.55s ease both;
+}
+
+.badge {
+  display: inline-block;
+  margin: 0 0 12px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--accent-2);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+h1,
+h2 {
+  margin: 0;
+  font-family: "ZCOOL XiaoWei", serif;
+  font-weight: 400;
+}
+
+h1 {
+  font-size: clamp(2rem, 4.3vw, 3rem);
+  line-height: 1.2;
+}
+
+.subtitle {
+  margin: 14px 0 0;
+  max-width: 760px;
+  color: var(--muted);
+  font-size: 1.04rem;
+}
+
+.panel {
+  margin-top: 16px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--card);
+  backdrop-filter: blur(2px);
+  box-shadow: var(--shadow);
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  gap: 12px;
+  align-items: end;
+  animation: revealDown 0.65s ease both;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+label {
+  font-weight: 700;
+  color: #3a3834;
+}
+
+select,
+.load-btn {
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  font-size: 0.96rem;
+}
+
+select {
+  background: #fff9ee;
+  padding: 0 10px;
+}
+
+#runSelect {
+  max-width: 100%;
+  text-overflow: ellipsis;
+}
+
+.load-btn {
+  padding: 0 18px;
+  background: linear-gradient(140deg, var(--accent), #d1682f);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.load-btn:hover {
+  transform: translateY(-1px);
+}
+
+.meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+  animation: revealDown 0.8s ease both;
+}
+
+.meta-item {
+  padding: 10px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+}
+
+.meta-item b {
+  display: block;
+  margin-bottom: 4px;
+  color: #3d2f20;
+}
+
+.stats-grid {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.stat-card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+  background: #fffaf1;
+  animation: revealDown 0.9s ease both;
+}
+
+.stat-card .k {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.stat-card .v {
+  margin-top: 6px;
+  font-size: 1.45rem;
+  color: #202020;
+  font-weight: 700;
+}
+
+.chart-wrap canvas {
+  width: 100%;
+  margin-top: 12px;
+  border-radius: 10px;
+  background: #fff9ee;
+  border: 1px solid var(--line);
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 660px;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  padding: 10px 8px;
+}
+
+th {
+  color: #46392b;
+  font-size: 0.9rem;
+}
+
+td {
+  font-size: 0.95rem;
+}
+
+.empty {
+  border-style: dashed;
+  color: #773319;
+  font-weight: 600;
+}
+
+.hidden {
+  display: none;
+}
+
+@keyframes revealDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .controls {
+    grid-template-columns: 1fr;
+  }
+
+  .run-group {
+    grid-column: auto;
+  }
+
+  .load-btn {
+    width: 100%;
+  }
+}
