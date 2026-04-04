@@ -77,16 +77,8 @@ class Server(BaseServer):
         np.random.shuffle(ids)
 
         # 学习率衰减策略
-        if tf_flag:
-            # 知识转移阶段：使用固定学习率
-            current_lr_gnn = self.args.lr_gnn
-            current_lr_mf = self.args.lr_mf
-        else:
-            # 知识获取阶段：使用余弦衰减
-            total_rounds = self.args.round_gat
-            lr_decay = 0.5 * (1 + math.cos(math.pi * round_id / total_rounds))
-            current_lr_gnn = self.args.lr_gnn * lr_decay
-            current_lr_mf = self.args.lr_mf * lr_decay
+        current_lr_gnn = self.args.lr_gnn
+        current_lr_mf = self.args.lr_mf
 
         for bt in tqdm(range(batch_num), desc="KT Stage"):
             grads_model, p, grads_embedding, grads_kt = [], [], [], []
