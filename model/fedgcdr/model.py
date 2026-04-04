@@ -32,11 +32,11 @@ class GATLayer(BaseGNNLayer):
     def forward(self, input: torch.Tensor, adj: torch.Tensor) -> torch.Tensor:
         """
         前向传播
-        
+
         Args:
             input: 输入特征矩阵
             adj: 邻接矩阵
-            
+
         Returns:
             输出特征矩阵
         """
@@ -46,9 +46,10 @@ class GATLayer(BaseGNNLayer):
         e = h1 + h2.T
         zero_vec = -9e15 * torch.ones_like(e)
         attention = torch.where(adj > 0, e, zero_vec)
+        attention = torch.clamp(attention, -5, 5)
         attention = nn.functional.softmax(attention, dim=-1)
         ah = torch.matmul(attention, h)
-        return ah
+        return ah + h
 
 
 @MODEL_REGISTRY.register('gat')
@@ -59,12 +60,14 @@ class GAT(BaseGNNModel):
     两层 GAT 结构，用于学习用户 - 物品图的嵌入表示
     """
     
-    def __init__(self, args, in_feature: int, hid_feature: int = 16, 
+    def __init__(self, args, in_feature: int, hid_feature: int = 16,
                  out_feature: int = 16, alpha: float = 0.1, dropout: float = 0):
         super().__init__(args, in_feature, hid_feature, out_feature)
         self.drop = nn.Dropout(p=dropout)
         self.in2hidden = GATLayer(in_feature, hid_feature, alpha).to(args.device)
         self.hidden2out = GATLayer(hid_feature, out_feature, alpha).to(args.device)
+        self.ln1 = nn.LayerNorm(hid_feature).to(args.device)
+        self.ln2 = nn.LayerNorm(out_feature).to(args.device)
     
     def forward(self, x: torch.Tensor, is_transfer_stage: bool = False,
                 domain_attention: torch.Tensor = None, 
@@ -90,10 +93,12 @@ class GAT(BaseGNNModel):
         adj[:, 0] = 1.
         adj[0, :] = 1.
         
-        # 第一层
+        # 第一层 + LayerNorm
         x = self.in2hidden(x, adj)
+        x = self.ln1(x)
+        x_initial = x.clone()
         intermediate_embedding.append(x[0].data)
-        
+
         # 知识转移阶段
         if is_transfer_stage:
             ls = alpha / 2 * self.compute_ls(x[0], transfer_vec)
@@ -103,9 +108,12 @@ class GAT(BaseGNNModel):
             adj = torch.eye(len(x), device=x.device)
             adj[:, 0] = 1.
             adj[0, :] = 1.
-        
-        # 第二层
+
+        # 第二层 + LayerNorm
         x = self.hidden2out(x, adj)
+        x = self.ln2(x)
+        # 与第一层后做层平均（类似 LightGCN）
+        x = (x_initial + x) / 2
         return x, intermediate_embedding, ls, lm
 
 

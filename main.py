@@ -357,7 +357,7 @@ else:
             if args.gnn_type == 'lightgcn':
                 server[it].kt_stage(round_id=i)
             else:
-                server[it].kt_stage()
+                server[it].kt_stage(round_id=i)
             hr_5, ndcg_5, hr_10, ndcg_10 = server[it].test_gnn(i)
             model_name = get_model_display_name(args.gnn_type)
             with open(output_file, 'a') as f:
@@ -414,7 +414,7 @@ if args.only_ft is False and not skip_kt_training:
             if args.gnn_type == 'lightgcn':
                 server[tar_domain].kt_stage(True, i)
             else:
-                server[tar_domain].kt_stage(True)
+                server[tar_domain].kt_stage(True, round_id=i)
             hr_5, ndcg_5, hr_10, ndcg_10 = server[tar_domain].test_gnn(i)
             training_success = True
         except Exception as e:

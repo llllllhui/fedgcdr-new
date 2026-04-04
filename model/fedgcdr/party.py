@@ -62,19 +62,24 @@ class Server(BaseServer):
                 for i, vl in enumerate(self.mlp[d].parameters()):
                     vl.data -= p * gd[i]
     
-    def kt_stage(self, tf_flag=False):
+    def kt_stage(self, tf_flag=False, round_id=None):
         """知识转移阶段"""
         batch_num = math.ceil(self.num_users / self.args.user_batch)
         ids = copy.deepcopy(self.clients)
         np.random.shuffle(ids)
-        
+
+        # 学习率衰减（余弦衰减）
+        current_lr_gnn = self.args.lr_gnn
+        if round_id is not None and self.args.round_gat > 0:
+            current_lr_gnn = self.args.lr_gnn * 0.5 * (1 + math.cos(math.pi * round_id / self.args.round_gat))
+
         for bt in tqdm(range(batch_num), desc="KT Stage"):
             grads_model, p, grads_embedding, grads_kt = [], [], [], []
             total_item_interact_table = torch.zeros(self.num_items).to(self.args.device)
             s, t = bt * self.args.user_batch, min((bt+1) * self.args.user_batch, self.num_users)
             batch_user = ids[s:t]
             no_trans = self.args.user_batch * 1
-            
+
             for i, it in enumerate(batch_user):
                 if len(self.total_clients[it].train_data[self.id]) == 0:
                     continue
@@ -83,7 +88,7 @@ class Server(BaseServer):
                         self.id, self.user_dic, self.item_gat, self.U, self.V)
                 else:
                     pk, grad_gat, grad_emb, grad_kt = self.total_clients[it].knowledge_transfer(
-                        self.id, self.mlp, self.user_dic, self.item_gat, 
+                        self.id, self.mlp, self.user_dic, self.item_gat,
                         self.U, self.V, self.domain_attention)
                     grads_kt.append(grad_kt)
                 total_items = grad_emb[3]
@@ -104,13 +109,15 @@ class Server(BaseServer):
                             except:
                                 pass
                 for j, vl in enumerate(self.item_gat.parameters()):
-                    vl.data -= p[i] * it[j]
+                    decay_ratio = 1.0 if self.args.lr_gnn == 0 else current_lr_gnn / self.args.lr_gnn
+                    vl.data -= p[i] * it[j] * decay_ratio
             total_item_interact_table[total_item_interact_table == 0] = 1
             for grad in grads_embedding:
                 uid, u_emb_att, u_emb, total_items, total_grads = grad
                 map_id = self.user_dic[uid][self.domain_name]
-                self.user_embedding_with_attention[map_id] = u_emb_att
-                self.U[map_id] = u_emb
+                momentum = 0.7
+                self.user_embedding_with_attention[map_id] = momentum * self.user_embedding_with_attention[map_id] + (1 - momentum) * u_emb_att
+                self.U[map_id] = momentum * self.U[map_id] + (1 - momentum) * u_emb
                 self.V[total_items] -= total_grads / total_item_interact_table[total_items].unsqueeze(1)
 
 
