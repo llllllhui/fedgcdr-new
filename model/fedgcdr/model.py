@@ -96,8 +96,8 @@ class GAT(BaseGNNModel):
         # 第一层 + LayerNorm
         x = self.in2hidden(x, adj)
         x = self.ln1(x)
-        x_initial = x.clone()
         intermediate_embedding.append(x[0].data)
+        num_nodes = len(x)
 
         # 知识转移阶段
         if is_transfer_stage:
@@ -112,8 +112,8 @@ class GAT(BaseGNNModel):
         # 第二层 + LayerNorm
         x = self.hidden2out(x, adj)
         x = self.ln2(x)
-        # 与第一层后做层平均（类似 LightGCN）
-        x = (x_initial + x) / 2
+        # 与第一层后做层平均（类似 LightGCN），新增的 transfer_vec 节点只取第二层输出
+        x[:num_nodes] = (intermediate_embedding[0] + x[:num_nodes]) / 2
         return x, intermediate_embedding, ls, lm
 
 
