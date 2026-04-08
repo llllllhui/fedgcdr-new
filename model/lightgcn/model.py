@@ -66,6 +66,11 @@ class LightGCN(BaseGNNModel):
         # LightGCN 使用多个层，每层都是简单的邻接聚合
         self.layers = nn.ModuleList([LightGCNLayer().to(self.device) for _ in range(num_layers)])
 
+        # LayerNorm 在 __init__ 中定义，参数可学习
+        self.layer_norms = nn.ModuleList(
+            [nn.LayerNorm(hid_feature).to(self.device) for _ in range(num_layers)]
+        )
+
         # 残差连接投影层
         self.res_proj = nn.Linear(hid_feature, hid_feature).to(self.device) if num_layers > 1 else None
 
@@ -113,9 +118,8 @@ class LightGCN(BaseGNNModel):
         # LightGCN 的逐层传播
         for i, layer in enumerate(self.layers):
             x_new = layer(x, adj)
-            # LayerNorm
-            ln = nn.LayerNorm(self.hid_feature, device=x.device)
-            x_new = ln(x_new)
+            # 使用预定义的可学习 LayerNorm
+            x_new = self.layer_norms[i](x_new)
             # Dropout
             x_new = self.drop(x_new)
             # 残差连接
@@ -123,12 +127,12 @@ class LightGCN(BaseGNNModel):
                 x_new = x_new + self.res_proj(x)
             x = x_new
             layer_outputs.append(x)
+            # 统一在第一层传播后提取（两个阶段语义一致）
+            if i == 0:
+                intermediate_embedding.append(x[0].data)
 
         # 所有层的平均作为最终表示
         x_final = torch.stack(layer_outputs, dim=0).mean(dim=0)
-
-        # 提取中间嵌入
-        intermediate_embedding.append(layer_outputs[0][0].data)
 
         return x_final, intermediate_embedding, ls, lm
 

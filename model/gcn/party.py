@@ -47,6 +47,8 @@ class Server(BaseServer):
         ids = copy.deepcopy(self.clients)
         np.random.shuffle(ids)
         current_lr = self.args.lr_gnn
+        no_trans = self.args.user_batch * 1
+        grads_kt = []
 
         for bt in tqdm(range(batch_num), desc="GCN KT Stage"):
             grads_model, p, grads_embedding = [], [], []
@@ -54,12 +56,18 @@ class Server(BaseServer):
             s, t = bt * self.args.user_batch, min((bt + 1) * self.args.user_batch, self.num_users)
             batch_user = ids[s:t]
 
-            for it in batch_user:
+            for i, it in enumerate(batch_user):
                 if len(self.total_clients[it].train_data[self.id]) == 0:
                     continue
 
-                length, grad_gnn, grad_emb, grad_kt = self.total_clients[it].train_gnn(
-                    self.id, self.user_dic, self.gnn_model, self.U, self.V, lr=current_lr)
+                if tf_flag is False or i >= no_trans:
+                    length, grad_gnn, grad_emb, _ = self.total_clients[it].train_gnn(
+                        self.id, self.user_dic, self.gnn_model, self.U, self.V, lr=current_lr)
+                else:
+                    length, grad_gnn, grad_emb, grad_kt_single = self.total_clients[it].knowledge_transfer_gcn(
+                        self.id, self.mlp, self.user_dic, self.gnn_model,
+                        self.U, self.V, self.domain_attention, lr=current_lr)
+                    grads_kt.append(grad_kt_single)
 
                 total_items = grad_emb[3]
                 total_item_interact_table[total_items] += 1
@@ -73,6 +81,14 @@ class Server(BaseServer):
             p = torch.Tensor(p)
             p = p / torch.sum(p)
             for i, grad_set in enumerate(grads_model):
+                if tf_flag and i < no_trans:
+                    self.domain_attention.data -= p[i] * grads_kt[i][0]
+                    for mid, mlp in enumerate(self.mlp):
+                        for pid, para in enumerate(mlp.parameters()):
+                            try:
+                                para.data -= p[i] * grads_kt[i][mid + 1][pid]
+                            except Exception:
+                                pass
                 for j, parameter in enumerate(self.gnn_model.parameters()):
                     parameter.data -= p[i] * grad_set[j]
 
@@ -95,18 +111,29 @@ class Client(BaseClient):
         return self.gnn_model
 
     def train_gnn(self, domain_id, user_dic, model_item, global_user_embedding,
-                  global_item_embedding, lr=None):
+                  global_item_embedding, lr=None, transfer=False, a=None, transfer_vec=None):
         if lr is None:
             lr = self.args.lr_gnn
 
-        grads_gnn, grad_emb = [], []
+        grads_gnn, grad_emb, grad_kt = [], [], []
         length = len(self.items[domain_id])
         self.gnn_model = copy.deepcopy(model_item)
 
         user_embedding = self.reset(
             global_user_embedding[user_dic[self.id][self.domain_names[domain_id]]])
         item_embedding = self.reset(global_item_embedding)
+
         parameters = [user_embedding, item_embedding] + list(self.gnn_model.parameters())
+        temp_vec = [0 for _ in range(self.args.num_domain)]
+        local_a = a
+        mlps = None
+
+        if transfer:
+            mlps = copy.deepcopy(self.mlp)
+            for mlp in mlps:
+                parameters += [p for p in mlp.parameters()]
+            local_a = self.reset(a)
+
         optimizer = torch.optim.Adam(parameters, lr=lr)
 
         total_item, ratings = self.sample_negative(
@@ -114,9 +141,13 @@ class Client(BaseClient):
 
         for _ in range(self.args.local_epoch):
             optimizer.zero_grad()
+            if transfer and mlps is not None:
+                for i in range(self.args.num_domain):
+                    temp_vec[i] = mlps[i](transfer_vec[i])
             h_i, intermediate_emb, ls, lm = self.gnn_model(
                 torch.cat((user_embedding.reshape(1, self.args.embedding_size),
-                           item_embedding[self.items[domain_id]])))
+                           item_embedding[self.items[domain_id]])),
+                transfer, local_a, temp_vec)
 
             user_emb = h_i[0]
             h_i = item_embedding[total_item]
@@ -143,7 +174,44 @@ class Client(BaseClient):
         grad_emb.append(global_item_embedding[grad_emb[-1]].detach() -
                         item_embedding[grad_emb[-1]].detach())
 
-        return length, grads_gnn, grad_emb, []
+        if transfer:
+            grad_kt.append(a.detach() - local_a.detach())
+            for i in range(self.args.num_domain):
+                lp = [p.data for p in mlps[i].parameters()]
+                gp = [p.data for p in self.mlp[i].parameters()]
+                grad_kt.append([g - l for g, l in zip(gp, lp)])
+
+        return length, grads_gnn, grad_emb, grad_kt
+
+    def knowledge_transfer_gcn(self, domain_id, mlps, user_dic, model_item,
+                                user_embedding, item_embedding, a, lr=None):
+        """GCN 知识转移：加 DP 噪声后调用 train_gnn(transfer=True)"""
+        transfer_vec = []
+        self.mlp = mlps
+        std = self.sensitivity * torch.sqrt(2 * torch.log(1.25 / self.delta)) * 1 / (self.eps * 2)
+
+        for j in range(self.args.num_domain):
+            if j == domain_id:
+                transfer_vec.append(torch.zeros(self.args.embedding_size, device=self.args.device))
+            else:
+                if len(self.knowledge[j]) == 0:
+                    temp_vec = torch.zeros(self.args.embedding_size, device=self.args.device)
+                else:
+                    temp_vec = self.l2_clip(
+                        torch.tensor(self.knowledge[j][0], device=self.args.device),
+                        self.sensitivity)
+                    # Knowledge quality gating
+                    if torch.norm(temp_vec).item() < 0.5:
+                        temp_vec = torch.zeros(self.args.embedding_size, device=self.args.device)
+                noise = torch.normal(mean=0, std=std,
+                                     size=(1, self.args.embedding_size)).to(self.args.device).squeeze()
+                if self.args.dp:
+                    transfer_vec.append(temp_vec + noise)
+                else:
+                    transfer_vec.append(temp_vec)
+
+        return self.train_gnn(domain_id, user_dic, model_item, user_embedding,
+                              item_embedding, lr=lr, transfer=True, a=a, transfer_vec=transfer_vec)
 
     def train_mlp(self, mlps):
         self.mlp = mlps

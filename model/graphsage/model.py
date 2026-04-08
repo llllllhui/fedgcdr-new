@@ -27,7 +27,8 @@ class GraphSAGELayer(BaseGNNLayer):
         super().__init__(in_feature, out_feature)
         
         # Mean 聚合器的线性变换
-        self.linear = nn.Linear(in_feature, out_feature)
+        # GraphSAGE: 输入是自身 + 邻居聚合（拼接后），所以输入维度翻倍
+        self.linear = nn.Linear(2 * in_feature, out_feature)
         
     def forward(self, x: torch.Tensor, adj: torch.Tensor) -> torch.Tensor:
         """
@@ -47,9 +48,10 @@ class GraphSAGELayer(BaseGNNLayer):
         
         # 邻居聚合 (mean aggregator)
         aggregated = torch.matmul(norm_adj, x)
-        
-        # 线性变换 + ReLU
-        output = F.relu(self.linear(aggregated))
+
+        # 拼接自身与聚合邻居（GraphSAGE 核心特征）
+        combined = torch.cat([x, aggregated], dim=1)
+        output = F.relu(self.linear(combined))
         
         return output
 

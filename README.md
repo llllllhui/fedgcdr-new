@@ -19,7 +19,34 @@ FedGCDR-New 是一个联邦跨域推荐实验项目，支持多种 GNN 编码器
 pip install -r requirements.txt
 ```
 
-> `requirements.txt` 仅声明了核心包（`numpy/pandas/tqdm/scikit-learn`），请按你的 CUDA/CPU 环境自行安装 PyTorch。
+> 请按你的 CUDA/CPU 环境自行安装 PyTorch（推荐 2.0+）。
+
+## 项目结构
+
+```text
+fedgcdr-new/
+├── main.py              # 训练入口
+├── utility.py           # 数据集装载（amazon/douban）
+├── checkpoint.py        # Checkpoint 保存/加载/恢复
+├── Data_Proc.py         # Amazon 数据预处理脚本（4/8/16 域）
+├── requirements.txt     # 项目依赖
+├── model/
+│   ├── __init__.py      # 自动注册内置模型
+│   ├── registry.py      # MODEL/SERVER/CLIENT 注册表
+│   ├── base_model.py    # 基础模型类
+│   ├── base_party.py    # 基础通信类
+│   ├── fedgcdr/         # 原始 GAT 相关实现
+│   ├── lightgcn/        # LightGCN 模型
+│   ├── graphsage/       # GraphSAGE 模型
+│   ├── simgcl/          # SimGCL 模型
+│   └── gcn/             # GCN 模型
+├── data/                # 训练数据
+├── checkpoints/         # 阶段 checkpoint（KG/KT）
+├── output/              # 训练日志输出
+│   └── figures/live/    # 实时指标图表
+├── embedding/           # 目标域嵌入产物
+└── training-results-web/# 可视化前端
+```
 
 ## 项目结构
 
@@ -72,6 +99,25 @@ python main.py --gnn_type lightgcn --resume_from kg --checkpoint_path checkpoint
 python main.py --gnn_type lightgcn --resume_from kt --checkpoint_path checkpoints/<kt_checkpoint_dir>
 ```
 
+### 5) 列出所有可用 checkpoint
+
+```bash
+python main.py --list_checkpoints
+```
+
+### 6) 实时训练监控
+
+启用实时指标追踪（默认启用）：
+
+- 实时图表：`output/figures/live/*_live_metrics.png`
+- 实时数据：`output/figures/live/*_live_metrics.csv`
+
+可以通过以下参数控制：
+
+```bash
+python main.py --gnn_type lightgcn --live_plot True --live_plot_refresh_every 5
+```
+
 ## 可用模型
 
 `main.py --gnn_type` 当前支持：
@@ -96,9 +142,16 @@ python main.py --gnn_type lightgcn --resume_from kt --checkpoint_path checkpoint
 | `--round_ft` | FT 阶段轮数 | `60` |
 | `--embedding_size` | 嵌入维度 | `16` |
 | `--device` | 训练设备 | `cuda:0` |
-| `--resume_from` | checkpoint 恢复阶段 | `kg` / `kt` |
-| `--checkpoint_path` | checkpoint 目录路径 | `None` |
+| `--resume_from` | checkpoint 恢复阶段 (kg/kt/None) | `kg` |
+| `--checkpoint_path` | checkpoint 目录路径 | 见代码注释 |
 | `--random_seed` | 随机种子 | `42` |
+| `--live_plot` | 启用实时指标图表 | `True` |
+| `--live_plot_dir` | 实时图表输出目录 | `output/figures/live` |
+| `--live_plot_refresh_every` | 每N轮刷新图表 | `1` |
+| `--lr_gnn` | GNN 模型统一学习率 | `0.001` |
+| `--weight_decay` | 权重衰减 | `1e-4` |
+| `--local_epoch` | 本地训练轮数 | `3` |
+| `--user_batch` | 用户批次大小 | `16` |
 
 ## 数据准备说明
 
