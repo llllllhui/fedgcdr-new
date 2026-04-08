@@ -54,7 +54,7 @@ class CheckpointManager:
     @staticmethod
     def _get_item_model_attr(gnn_type):
         """Map a gnn_type to the model attribute stored on server instances."""
-        if gnn_type in ['graphsage', 'simgcl', 'gcn']:
+        if gnn_type in ['graphsage', 'gcn']:
             return 'gnn_model'
         if gnn_type == 'lightgcn':
             return 'item_lightgcn'

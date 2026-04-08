@@ -19,11 +19,7 @@ FedGCDR 模型包
     │   ├── __init__.py
     │   ├── model.py         # GraphSAGE 模型实现
     │   └── party.py         # GraphSAGE 的 Server/Client
-    │
-    └── simgcl/              # SimGCL 模型 (示例)
-        ├── __init__.py
-        ├── model.py         # SimGCL 模型实现
-        └── party.py         # SimGCL 的 Server/Client
+
 """
 
 from .registry import (
@@ -92,17 +88,6 @@ def _register_builtin_models():
     except ImportError:
         pass
 
-    # 注册 SimGCL 模型
-    try:
-        from .simgcl.model import SimGCL, MLP as SimGCLMLP
-        from .simgcl.party import Server as SimGCLServer, Client as SimGCLClient
-
-        MODEL_REGISTRY.register('simgcl')(SimGCL)
-        MODEL_REGISTRY.register('simgcl_mlp')(SimGCLMLP)
-        SERVER_REGISTRY.register('simgcl')(SimGCLServer)
-        CLIENT_REGISTRY.register('simgcl')(SimGCLClient)
-    except ImportError:
-        pass
 
     # 注册 GCN 模型
     try:

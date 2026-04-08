@@ -38,7 +38,6 @@ fedgcdr-new/
 │   ├── fedgcdr/         # 原始 GAT 相关实现
 │   ├── lightgcn/        # LightGCN 模型
 │   ├── graphsage/       # GraphSAGE 模型
-│   ├── simgcl/          # SimGCL 模型
 │   └── gcn/             # GCN 模型
 ├── data/                # 训练数据
 ├── checkpoints/         # 阶段 checkpoint（KG/KT）
@@ -64,7 +63,6 @@ fedgcdr-new/
 │   ├── fedgcdr/            # 原始 GAT 相关实现
 │   ├── lightgcn/
 │   ├── graphsage/
-│   ├── simgcl/
 │   └── gcn/
 ├── data/                   # 训练数据
 ├── checkpoints/            # 阶段 checkpoint（KG/KT）
@@ -125,7 +123,6 @@ python main.py --gnn_type lightgcn --live_plot True --live_plot_refresh_every 5
 - `gat`
 - `lightgcn`
 - `graphsage`
-- `simgcl`
 - `gcn`
 
 模型、Server、Client 通过 `model/registry.py` 统一管理，并在 `model/__init__.py` 自动注册。

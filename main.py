@@ -49,7 +49,6 @@ def get_model_display_name(gnn_type):
         'gat': 'GAT',
         'lightgcn': 'LightGCN',
         'graphsage': 'GraphSAGE',
-        'simgcl': 'SimGCL',
         'gcn': 'GCN',
     }
     return model_names.get(gnn_type, gnn_type.upper())
@@ -159,7 +158,7 @@ parser.add_argument('--num_negative', type=int, default=4)
 parser.add_argument('--user_batch', type=int, default=16)
 parser.add_argument('--model', type=str, default='fedgcdr')
 parser.add_argument('--gnn_type', type=str, default='lightgcn', 
-                    choices=['gat', 'lightgcn', 'graphsage', 'simgcl', 'gcn'],
+                    choices=['gat', 'lightgcn', 'graphsage', 'gcn'],
                     help='选择使用的图神经网络模型')
 parser.add_argument('--knowledge', type=bool, default=False)
 parser.add_argument('--only_ft', type=bool, default=False)
