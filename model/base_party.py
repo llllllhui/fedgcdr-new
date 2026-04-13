@@ -97,8 +97,14 @@ class BaseServer(ABC):
     
     def metric_at_k(self, test_predictions: torch.Tensor, k: int, epoch_id: int):
         """计算 HR@K 和 NDCG@K"""
+        if len(test_predictions) == 0:
+            return 0.0, 0.0
+
         length = int(len(test_predictions) / 100)
-        test_predictions = test_predictions.reshape(length, 100)
+        if length == 0:
+            return 0.0, 0.0
+
+        test_predictions = test_predictions[:length * 100].reshape(length, 100)
         values, indices = torch.topk(test_predictions, k, dim=1, largest=True)
         loc = indices == 99
         hr = torch.sum(loc).item() / length
@@ -111,8 +117,21 @@ class BaseServer(ABC):
     def test(self, U: torch.Tensor, V: torch.Tensor, epoch_id: int):
         """通用测试方法"""
         test_data = self.evaluate_data
+        if len(test_data) == 0:
+            print(f"Warning: evaluate_data is empty for domain {self.domain_name}")
+            return 0.0, 0.0, 0.0, 0.0
+
         with torch.no_grad():
             test_user, test_item = test_data[:, 0], test_data[:, 1]
+
+            # 检查索引是否越界
+            if torch.max(test_user) >= U.shape[0]:
+                print(f"Error: test_user max index {torch.max(test_user)} >= U shape {U.shape[0]}")
+                return 0.0, 0.0, 0.0, 0.0
+            if torch.max(test_item) >= V.shape[0]:
+                print(f"Error: test_item max index {torch.max(test_item)} >= V shape {V.shape[0]}")
+                return 0.0, 0.0, 0.0, 0.0
+
             test_predictions = sigmoid(torch.sum(torch.multiply(U[test_user], V[test_item]), dim=-1))
             hr_5, ndcg_5 = self.metric_at_k(test_predictions, 5, epoch_id)
             hr_10, ndcg_10 = self.metric_at_k(test_predictions, 10, epoch_id)

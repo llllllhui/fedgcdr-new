@@ -1,5 +1,6 @@
 ﻿const state = {
   data: null,
+  recoData: null,
   selectedGnn: "",
   selectedDomain: "4",
   selectedRunId: "",
@@ -16,14 +17,32 @@ const emptyState = document.getElementById("emptyState");
 const canvas = document.getElementById("metricsChart");
 const ctx = canvas.getContext("2d");
 
+const userIndexInput = document.getElementById("userIndexInput");
+const queryRecBtn = document.getElementById("queryRecBtn");
+const randomUserBtn = document.getElementById("randomUserBtn");
+const recMeta = document.getElementById("recMeta");
+const recStatus = document.getElementById("recStatus");
+const recBeforeList = document.getElementById("recBeforeList");
+const recAfterList = document.getElementById("recAfterList");
+
 async function init() {
   const res = await fetch("./data/results.json");
   state.data = await res.json();
+
+  try {
+    const recRes = await fetch("./data/recommendations.json");
+    if (recRes.ok) {
+      state.recoData = await recRes.json();
+    }
+  } catch (_err) {
+    state.recoData = null;
+  }
 
   setupModelOptions();
   setupEvents();
   refreshRunOptions();
   renderCurrentRun();
+  renderRecommendationStatus();
 }
 
 function setupModelOptions() {
@@ -37,19 +56,52 @@ function setupEvents() {
   gnnSelect.addEventListener("change", () => {
     state.selectedGnn = gnnSelect.value;
     refreshRunOptions();
+    renderRecommendationStatus();
   });
 
   domainSelect.addEventListener("change", () => {
     state.selectedDomain = domainSelect.value;
     refreshRunOptions();
+    renderRecommendationStatus();
   });
 
   loadBtn.addEventListener("click", renderCurrentRun);
+  queryRecBtn.addEventListener("click", renderUserTop10Recommendation);
+  randomUserBtn.addEventListener("click", fillRandomValidUser);
 }
 
 function getRuns() {
   const grouped = state.data.grouped_runs;
   return grouped?.[state.selectedGnn]?.[state.selectedDomain] || [];
+}
+
+function getRecoSnapshots() {
+  const grouped = state.recoData?.grouped_snapshots;
+  return grouped?.[state.selectedGnn]?.[state.selectedDomain] || [];
+}
+
+function getActiveRecoSnapshot() {
+  const list = getRecoSnapshots();
+  return list[0] || null;
+}
+
+function getValidGlobalUsers(snapshot) {
+  return Object.keys(snapshot?.global_to_local || {})
+    .map((id) => Number.parseInt(id, 10))
+    .filter((id) => Number.isInteger(id))
+    .sort((a, b) => a - b);
+}
+
+function getSuggestedUsers(snapshot, count = 3) {
+  const users = getValidGlobalUsers(snapshot);
+  if (users.length <= count) {
+    return users;
+  }
+
+  const first = users[0];
+  const middle = users[Math.floor((users.length - 1) / 2)];
+  const last = users[users.length - 1];
+  return [first, middle, last].slice(0, count);
 }
 
 function refreshRunOptions() {
@@ -205,6 +257,94 @@ function renderChart(run) {
   drawTwoLineChart(x, y1, y2, "#be4a2f", "#0d6e6e");
 }
 
+function renderRecommendationStatus() {
+  clearRecommendationLists();
+
+  if (!state.recoData) {
+    recMeta.textContent = "未加载推荐数据（缺少 data/recommendations.json）。";
+    recStatus.textContent = "请先运行 scripts/build_recommendation_data.py 生成推荐数据。";
+    return;
+  }
+
+  const snapshot = getActiveRecoSnapshot();
+  if (!snapshot) {
+    recMeta.textContent = "当前模型 + 源域数量下暂无可用推荐快照。";
+    recStatus.textContent = "请先完成对应配置的 KT 阶段并生成推荐数据。";
+    return;
+  }
+
+  const beforeInfo = snapshot.before_source ? ` | Before: ${snapshot.before_source}` : "";
+  const afterInfo = snapshot.after_source ? ` | After: ${snapshot.after_source}` : "";
+  recMeta.textContent = `当前推荐快照: ${snapshot.id} | Target Domain: ${snapshot.target_domain_name} | 时间: ${snapshot.timestamp.replace("T", " ")}${beforeInfo}${afterInfo}`;
+  recStatus.textContent = "请输入内部用户索引并点击“查询 Top10”，或点击“随机有效用户”。";
+}
+
+function renderUserTop10Recommendation() {
+  const snapshot = getActiveRecoSnapshot();
+  clearRecommendationLists();
+
+  if (!snapshot) {
+    recStatus.textContent = "当前模型 + 源域数量没有推荐快照，无法查询。";
+    return;
+  }
+
+  const raw = (userIndexInput.value || "").trim();
+  const userIndex = Number.parseInt(raw, 10);
+  if (!raw || Number.isNaN(userIndex) || userIndex < 0) {
+    recStatus.textContent = "请输入有效的内部用户索引（非负整数）。";
+    return;
+  }
+
+  const localIdx = snapshot.global_to_local[String(userIndex)];
+  if (localIdx === undefined) {
+    const candidates = getSuggestedUsers(snapshot, 3);
+    const hint = candidates.length ? `可尝试用户: ${candidates.join(", ")}` : "当前没有可用用户。";
+    recStatus.textContent = `用户 ${userIndex} 不在目标域 ${snapshot.target_domain_name} 中。${hint}`;
+    return;
+  }
+
+  const before = snapshot.top10_before?.[localIdx] || [];
+  const after = snapshot.top10_after?.[localIdx] || [];
+
+  renderItemList(recBeforeList, before);
+  renderItemList(recAfterList, after);
+  recStatus.textContent = `用户 ${userIndex} -> 目标域局部索引 ${localIdx}。以下为候选集上的 Top10 推荐物品 ID。`;
+}
+
+function fillRandomValidUser() {
+  const snapshot = getActiveRecoSnapshot();
+  if (!snapshot) {
+    recStatus.textContent = "当前模型 + 源域数量没有推荐快照，无法随机选择。";
+    return;
+  }
+
+  const validUsers = getValidGlobalUsers(snapshot);
+  if (!validUsers.length) {
+    recStatus.textContent = "当前目标域没有可用用户。";
+    return;
+  }
+
+  const randomIdx = Math.floor(Math.random() * validUsers.length);
+  userIndexInput.value = String(validUsers[randomIdx]);
+  renderUserTop10Recommendation();
+}
+
+function clearRecommendationLists() {
+  recBeforeList.innerHTML = "";
+  recAfterList.innerHTML = "";
+}
+
+function renderItemList(listElem, itemIds) {
+  if (!itemIds || !itemIds.length) {
+    listElem.innerHTML = `<li class="muted">无数据</li>`;
+    return;
+  }
+
+  listElem.innerHTML = itemIds
+    .map((itemId, idx) => `<li><span class="rank">#${idx + 1}</span><span class="item-id">Item ${itemId}</span></li>`)
+    .join("");
+}
+
 function pickKtAndFineTuningRows(run) {
   const targetDomain = resolveTargetDomainName(run);
   const targetRows = run.rounds.filter((r) => r.domain === targetDomain);
@@ -248,6 +388,7 @@ function splitByRoundReset(rows) {
   segments.push(current);
   return segments;
 }
+
 function drawTwoLineChart(xValues, y1, y2, color1, color2) {
   const w = canvas.width;
   const h = canvas.height;
@@ -319,7 +460,6 @@ function fmt(v) {
 
 init().catch((e) => {
   console.error(e);
-  alert("加载数据失败，请先生成 data/results.json");
+  alert("加载数据失败，请先生成 data/results.json 与 data/recommendations.json");
 });
-
 

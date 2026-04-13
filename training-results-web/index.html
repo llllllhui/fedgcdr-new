@@ -47,6 +47,34 @@
       <canvas id="metricsChart" width="1200" height="380"></canvas>
     </section>
 
+    <section class="panel rec-wrap">
+      <h2>指定用户 Top10 推荐（跨域前 vs 跨域后）</h2>
+      <p class="rec-tip">输入内部用户索引（全局用户索引），展示对应目标域候选集上的 Top10 推荐物品。</p>
+
+      <div class="rec-controls">
+        <div class="control-group">
+          <label for="userIndexInput">内部用户索引</label>
+          <input id="userIndexInput" type="number" min="0" step="1" placeholder="例如 1" />
+        </div>
+        <button id="queryRecBtn" class="load-btn" type="button">查询 Top10</button>
+        <button id="randomUserBtn" class="load-btn ghost-btn" type="button">随机有效用户</button>
+      </div>
+
+      <div id="recMeta" class="rec-meta"></div>
+      <div id="recStatus" class="rec-status"></div>
+
+      <div class="rec-grid">
+        <article class="rec-card">
+          <h3>跨域前（Before）</h3>
+          <ol id="recBeforeList"></ol>
+        </article>
+        <article class="rec-card">
+          <h3>跨域后（After）</h3>
+          <ol id="recAfterList"></ol>
+        </article>
+      </div>
+    </section>
+
     <section class="panel table-wrap">
       <h2>最新轮次各域指标</h2>
       <div class="table-scroll">

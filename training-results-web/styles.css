@@ -57,7 +57,8 @@ body {
 }
 
 h1,
-h2 {
+h2,
+h3 {
   margin: 0;
   font-family: "ZCOOL XiaoWei", serif;
   font-weight: 400;
@@ -106,6 +107,7 @@ label {
 }
 
 select,
+input,
 .load-btn {
   height: 42px;
   border-radius: 10px;
@@ -113,7 +115,8 @@ select,
   font-size: 0.96rem;
 }
 
-select {
+select,
+input {
   background: #fff9ee;
   padding: 0 10px;
 }
@@ -133,6 +136,10 @@ select {
 
 .load-btn:hover {
   transform: translateY(-1px);
+}
+
+.ghost-btn {
+  background: linear-gradient(140deg, #2e7a7a, #1f5d5d);
 }
 
 .meta {
@@ -187,6 +194,75 @@ select {
   border-radius: 10px;
   background: #fff9ee;
   border: 1px solid var(--line);
+}
+
+.rec-tip {
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+
+.rec-controls {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: minmax(240px, 340px) auto auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.rec-meta {
+  margin-top: 12px;
+  font-weight: 600;
+  color: #2f4f4f;
+}
+
+.rec-status {
+  margin-top: 6px;
+  color: #5a5349;
+}
+
+.rec-grid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.rec-card {
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  background: #fffaf1;
+}
+
+.rec-card h3 {
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+}
+
+.rec-card ol {
+  margin: 0;
+  padding-left: 22px;
+}
+
+.rec-card li {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 3px 0;
+}
+
+.rank {
+  color: #855f2e;
+  font-weight: 700;
+  min-width: 28px;
+}
+
+.item-id {
+  font-family: "Barlow", monospace;
+}
+
+.muted {
+  color: #7b756a;
 }
 
 .table-scroll {
@@ -248,4 +324,14 @@ td {
   .load-btn {
     width: 100%;
   }
+
+  .rec-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .rec-grid {
+    grid-template-columns: 1fr;
+  }
 }
+
+

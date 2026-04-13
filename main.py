@@ -148,16 +148,21 @@ parser.add_argument('--round_ft', type=int, default=60)
 parser.add_argument('--num_domain', type=int, default=8)
 parser.add_argument('--device', type=str, default='cuda:0')
 parser.add_argument('--target_domain', type=int, default=1)
-parser.add_argument('--lr_mf', type=float, default=0.005)
+parser.add_argument('--lr_mf', type=float, default=0.005,
+                    help='MF微调阶段学习率 (建议: 0.005)')
 parser.add_argument('--lr_gnn', type=float, default=0.001,
-                    help='GNN模型统一学习率')
+                    help='GNN模型学习率。不同模型推荐值: '
+                         'GCN=0.001-0.005 (有归一化和ReLU，中等学习率); '
+                         'GAT=0.001-0.002 (注意力机制复杂，较小学习率); '
+                         'LightGCN=0.001-0.003 (无特征变换更稳定，默认0.001); '
+                         'GraphSAGE=0.001-0.005 (Mean聚合，中等学习率)')
 parser.add_argument('--embedding_size', type=int, default=16)
 parser.add_argument('--local_epoch', type=int, default=3)
 parser.add_argument('--weight_decay', type=float, default=1e-4)
 parser.add_argument('--num_negative', type=int, default=4)
 parser.add_argument('--user_batch', type=int, default=16)
 parser.add_argument('--model', type=str, default='fedgcdr')
-parser.add_argument('--gnn_type', type=str, default='lightgcn', 
+parser.add_argument('--gnn_type', type=str, default='lightgcn',
                     choices=['gat', 'lightgcn', 'graphsage', 'gcn'],
                     help='选择使用的图神经网络模型')
 parser.add_argument('--knowledge', type=bool, default=False)
