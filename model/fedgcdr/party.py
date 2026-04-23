@@ -232,6 +232,7 @@ class Client(BaseClient):
         transfer_vec = []
         self.mlp = mlps
         std = self.sensitivity * torch.sqrt(2 * torch.log(1.25 / self.delta)) * 1 / self.args.eps
+        knowledge_threshold = self.args.knowledge_gate_threshold
         
         for j in range(self.args.num_domain):
             if j == domain_id:
@@ -243,6 +244,10 @@ class Client(BaseClient):
                     temp_vec = Client.l2_clip(
                         torch.tensor(self.knowledge[j][0], device=self.args.device), 
                         self.sensitivity)
+                    if self.args.use_knowledge_gate:
+                        knowledge_norm = torch.norm(temp_vec).item()
+                        if knowledge_norm < knowledge_threshold:
+                            temp_vec = torch.zeros(self.args.embedding_size, device=self.args.device)
                 noise = torch.normal(mean=0, std=std, 
                                     size=(1, self.args.embedding_size)).to(self.args.device).squeeze()
                 if self.args.dp:

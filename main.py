@@ -143,9 +143,9 @@ warnings.filterwarnings('ignore')
 
 parser = argparse.ArgumentParser(description='args for fedgcdr')
 parser.add_argument('--dataset', choices=['amazon', 'douban'], default='amazon')
-parser.add_argument('--round_gat', type=int, default=30)
-parser.add_argument('--round_ft', type=int, default=60)
-parser.add_argument('--num_domain', type=int, default=8)
+parser.add_argument('--round_gat', type=int, default=1)
+parser.add_argument('--round_ft', type=int, default=1)
+parser.add_argument('--num_domain', type=int, default=4)
 parser.add_argument('--device', type=str, default='cuda:0')
 parser.add_argument('--target_domain', type=int, default=1)
 parser.add_argument('--lr_mf', type=float, default=0.005,
@@ -162,7 +162,7 @@ parser.add_argument('--weight_decay', type=float, default=1e-4)
 parser.add_argument('--num_negative', type=int, default=4)
 parser.add_argument('--user_batch', type=int, default=16)
 parser.add_argument('--model', type=str, default='fedgcdr')
-parser.add_argument('--gnn_type', type=str, default='lightgcn',
+parser.add_argument('--gnn_type', type=str, default='gat',
                     choices=['gat', 'lightgcn', 'graphsage', 'gcn'],
                     help='选择使用的图神经网络模型')
 parser.add_argument('--knowledge', type=bool, default=False)
@@ -170,6 +170,10 @@ parser.add_argument('--only_ft', type=bool, default=False)
 parser.add_argument('--eps', type=float, default=8)
 parser.add_argument('--dp', type=bool, default=True)
 parser.add_argument('--delta', type=float, default=1e-5)
+parser.add_argument('--use_knowledge_gate', type=bool, default=True,
+                    help='是否在知识转移阶段启用基于L2范数的知识质量门控')
+parser.add_argument('--knowledge_gate_threshold', type=float, default=0.5,
+                    help='知识质量门控阈值，小于该L2范数的知识向量将被置零')
 parser.add_argument('--num_users', type=int)
 parser.add_argument('--random_seed', type=int, default=42)
 parser.add_argument('--description', type=str, default=None)
