@@ -5,31 +5,37 @@ import numpy as np
 from collections import Counter
 import tqdm
 import os
+import argparse
+
+from domain_config import build_amazon_domain_config
+
 np.random.seed(2024)
 # ==========================================
 # 全局配置参数 (根据 FedGCDR 论文 Table 4 设定)
 # ==========================================
-NUM_DOMAINS = 16  # 你可以在这里将其修改为 4, 8, 或 16
 
-CONFIG = {
-    4: {
-        "domains": ['Clothing_Shoes_and_Jewelry', 'Books', 'Movies_and_TV', 'CDs_and_Vinyl'],
-        "cores": [48, 96, 48, 24],
-        "shorts": ['Clothing', 'Books', 'Movies', 'CDs']
-    },
-    8: {
-        "domains": ['Clothing_Shoes_and_Jewelry', 'Books', 'Home_and_Kitchen', 'Electronics', 'Sports_and_Outdoors', 'Cell_Phones_and_Accessories', 'Movies_and_TV', 'CDs_and_Vinyl'],
-        "cores": [48, 96, 32, 32, 24, 16, 48, 24],
-        "shorts": ['Clothing', 'Books', 'Home', 'Electronics', 'Sports', 'Cell', 'Movies', 'CDs']
-    },
-    16: {
-        "domains": ['Clothing_Shoes_and_Jewelry', 'Books', 'Home_and_Kitchen', 'Electronics', 'Sports_and_Outdoors', 'Cell_Phones_and_Accessories', 'Tools_and_Home_Improvement', 'CDs_and_Vinyl', 'Movies_and_TV', 'Toys_and_Games', 'Automotive', 'Pet_Supplies', 'Kindle_Store', 'Office_Products', 'Patio_Lawn_and_Garden', 'Grocery_and_Gourmet_Food'],
-        "cores": [48, 96, 32, 32, 24, 16, 16, 24, 48, 32, 32, 32, 48, 32, 32, 32],
-        "shorts": ['Clothing', 'Books', 'Home', 'Electronics', 'Sports', 'Cell', 'Tools', 'CDs', 'Movies', 'Toys', 'Automotive', 'Pet', 'Kindle', 'Office', 'Patio', 'Grocery']
-    }
-}
 
-cfg = CONFIG[NUM_DOMAINS]
+def parse_args():
+    parser = argparse.ArgumentParser(description="Amazon domain data preprocessing")
+    parser.add_argument(
+        "--num_domains",
+        type=int,
+        default=16,
+        choices=[2, 4, 8, 16],
+        help="number of domains to preprocess",
+    )
+    parser.add_argument(
+        "--domains",
+        nargs="+",
+        default=None,
+        help="optional short domain names, e.g. --domains Clothing Books",
+    )
+    return parser.parse_args()
+
+
+cli_args = parse_args()
+NUM_DOMAINS = cli_args.num_domains
+cfg = build_amazon_domain_config(NUM_DOMAINS, cli_args.domains)
 p = [d + '.csv' for d in cfg["domains"]]
 domains_list = cfg["domains"]
 cores_list = cfg["cores"]
@@ -44,6 +50,9 @@ SPLIT_DIR = BASE_OUTPUT_DIR  # 项目期望 implicit.json 和 domain_user.json �
 for d in [BASE_OUTPUT_DIR, HASH_DIR, SPLIT_DIR, 'item_core', 'user_core', 'processed_data']:
     if not os.path.exists(d):
         os.makedirs(d)
+
+with open(os.path.join(SPLIT_DIR, 'domain_names.json'), 'w', encoding='utf-8') as f:
+    json.dump(shorts_list, f)
 
 def get_core():
     # 处理对应域的物品core值计算 (Item Core统一设为10)

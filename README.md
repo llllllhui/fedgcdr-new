@@ -28,7 +28,7 @@ fedgcdr-new/
 ├── main.py              # 训练入口
 ├── utility.py           # 数据集装载（amazon/douban）
 ├── checkpoint.py        # Checkpoint 保存/加载/恢复
-├── Data_Proc.py         # Amazon 数据预处理脚本（4/8/16 域）
+├── Data_Proc.py         # Amazon 数据预处理脚本（支持 2/4/8/16 域）
 ├── requirements.txt     # 项目依赖
 ├── model/
 │   ├── __init__.py      # 自动注册内置模型
@@ -54,7 +54,7 @@ fedgcdr-new/
 ├── main.py                 # 训练入口（参数解析 + KG/KT/FT 流程）
 ├── utility.py              # 数据集装载（amazon/douban）
 ├── checkpoint.py           # Checkpoint 保存/加载/恢复
-├── Data_Proc.py            # Amazon 数据预处理脚本（4/8/16 域）
+├── Data_Proc.py            # Amazon 数据预处理脚本（支持 2/4/8/16 域）
 ├── model/
 │   ├── __init__.py         # 自动注册内置模型
 │   ├── registry.py         # MODEL/SERVER/CLIENT 注册表
@@ -84,6 +84,17 @@ python main.py --list_checkpoints
 ```bash
 python main.py --gnn_type lightgcn --dataset amazon --num_domain 8 --target_domain 1
 ```
+
+双域训练示例：
+
+```bash
+python main.py --gnn_type gat --dataset amazon --num_domain 2 --target_domain -1
+```
+
+上面的命令会依次运行：
+
+- `Books -> CDs`
+- `CDs -> Books`
 
 ### 3) 从 KG 阶段恢复
 
@@ -152,8 +163,16 @@ python main.py --gnn_type lightgcn --live_plot True --live_plot_refresh_every 5
 
 ## 数据准备说明
 
-- `amazon`：由 `Data_Proc.py` 生成 `data/{4|8|16}domains` 下的 `implicit.json` 与 `domain_user.json`。
+- `amazon`：由 `Data_Proc.py` 生成 `data/{2|4|8|16}domains` 下的 `implicit.json`、`domain_user.json` 和 `domain_names.json`。
 - `douban`：`utility.py` 默认读取 `data/douban_oldver/` 下对应文件。
+
+双域 Amazon 数据可直接生成，例如：
+
+```bash
+python Data_Proc.py --num_domains 2
+```
+
+如果不传 `--domains`，会使用默认双域预设 `Books + CDs`。
 
 训练前需确保对应数据文件已就位，否则会在数据加载阶段报错。
 

@@ -115,9 +115,13 @@ class Server(BaseServer):
             for grad in grads_embedding:
                 uid, u_emb_att, u_emb, total_items, total_grads = grad
                 map_id = self.user_dic[uid][self.domain_name]
-                momentum = 0.7
-                self.user_embedding_with_attention[map_id] = momentum * self.user_embedding_with_attention[map_id] + (1 - momentum) * u_emb_att
-                self.U[map_id] = momentum * self.U[map_id] + (1 - momentum) * u_emb
+                momentum = getattr(self.args, 'gat_user_update_momentum', 0.0)
+                if momentum > 0:
+                    self.user_embedding_with_attention[map_id] = momentum * self.user_embedding_with_attention[map_id] + (1 - momentum) * u_emb_att
+                    self.U[map_id] = momentum * self.U[map_id] + (1 - momentum) * u_emb
+                else:
+                    self.user_embedding_with_attention[map_id] = u_emb_att
+                    self.U[map_id] = u_emb
                 self.V[total_items] -= total_grads / total_item_interact_table[total_items].unsqueeze(1)
 
 

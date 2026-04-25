@@ -7,6 +7,7 @@ import json
 import importlib
 import subprocess
 import csv
+import sys
 from pathlib import Path
 
 import math
@@ -16,6 +17,7 @@ import datetime
 import utility
 from checkpoint import CheckpointManager, restore_from_checkpoint, restore_target_domain
 from model import get_server_class, get_client_class, get_model_class, list_all_models
+from training_targets import replace_or_add_cli_arg, resolve_target_domains
 
 try:
     import matplotlib
@@ -147,7 +149,8 @@ parser.add_argument('--round_gat', type=int, default=1)
 parser.add_argument('--round_ft', type=int, default=1)
 parser.add_argument('--num_domain', type=int, default=4)
 parser.add_argument('--device', type=str, default='cuda:0')
-parser.add_argument('--target_domain', type=int, default=1)
+parser.add_argument('--target_domain', type=int, default=1,
+                    help='目标域索引；传 -1 时依次运行所有目标域方向')
 parser.add_argument('--lr_mf', type=float, default=0.005,
                     help='MF微调阶段学习率 (建议: 0.005)')
 parser.add_argument('--lr_gnn', type=float, default=0.001,
@@ -165,6 +168,18 @@ parser.add_argument('--model', type=str, default='fedgcdr')
 parser.add_argument('--gnn_type', type=str, default='gat',
                     choices=['gat', 'lightgcn', 'graphsage', 'gcn'],
                     help='选择使用的图神经网络模型')
+parser.add_argument('--gat_use_residual', type=bool, default=False,
+                    help='GAT层是否使用残差连接(ah + h)')
+parser.add_argument('--gat_use_layernorm', type=bool, default=False,
+                    help='GAT两层后是否使用LayerNorm')
+parser.add_argument('--gat_use_layer_average', type=bool, default=False,
+                    help='是否对第一层和第二层输出做层间平均')
+parser.add_argument('--gat_use_attention_clamp', type=bool, default=True,
+                    help='是否对attention logits做clamp')
+parser.add_argument('--gat_attention_clamp_value', type=float, default=5.0,
+                    help='attention logits的clamp绝对值')
+parser.add_argument('--gat_user_update_momentum', type=float, default=0.0,
+                    help='用户嵌入聚合动量，0表示直接覆盖(原型行为)')
 parser.add_argument('--knowledge', type=bool, default=False)
 parser.add_argument('--only_ft', type=bool, default=False)
 parser.add_argument('--eps', type=float, default=8)
@@ -238,6 +253,29 @@ except KeyError as e:
 device = torch.device(args.device)
 
 domain_user, dic, domain_names = utility.set_dataset(args)
+target_domains = resolve_target_domains(args.target_domain, domain_names)
+if len(target_domains) > 1:
+    if args.resume_from or args.only_ft or args.knowledge:
+        raise ValueError(
+            "target_domain=-1 does not support resume_from, only_ft, or preloaded knowledge. "
+            "Run each target direction separately in those modes."
+        )
+
+    print(f'检测到多目标域轮换模式: {", ".join(domain_names)}')
+    for target_id in target_domains:
+        source_names = [name for idx, name in enumerate(domain_names) if idx != target_id]
+        print(
+            f'启动方向: source={", ".join(source_names)} -> target={domain_names[target_id]}'
+        )
+        child_argv = replace_or_add_cli_arg(sys.argv[1:], '--target_domain', str(target_id))
+        subprocess.run(
+            [sys.executable, os.path.abspath(__file__), *child_argv],
+            check=True,
+            cwd=os.getcwd(),
+        )
+    sys.exit(0)
+
+tar_domain = target_domains[0]
 client_train_data, server_evaluate_data, num_items, num_users, user_dic = dic['client_train_data'], dic[
     'server_evaluate_data'], dic['num_items'], dic['num_users'], dic['user_dic']
 clients = [Client(i, client_train_data[i], num_items, 0, domain_names, args) for i in range(args.num_users)]
@@ -248,12 +286,14 @@ MLPs = [MLP(args.embedding_size).to(device) for _ in range(args.num_domain)]
 
 # eval pre-train model
 print(f'\n{"="*60}')
-print(f'开始训练: 模型类型={args.gnn_type}, 目标域={domain_names[args.target_domain]}')
+source_domain_names = [name for idx, name in enumerate(domain_names) if idx != tar_domain]
+print(f'开始训练: 模型类型={args.gnn_type}, 目标域={domain_names[tar_domain]}')
+print(f'源域: {", ".join(source_domain_names)}')
+print(f'参与域: {", ".join(domain_names)}')
 print(f'{"="*60}\n')
 for it in server:
     it.test_mf(0)
 
-tar_domain = args.target_domain
 k_dic, emb_dic = {}, {}
 
 # 根据checkpoint恢复情况设置跳过标志
