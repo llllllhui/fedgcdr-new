@@ -531,8 +531,8 @@ max_hr, max_ndcg, epoch_id, no_improve = 0, 0, 0, 0
 max_hr_5, max_hr_10, max_ndcg_5, max_ndcg_10 = 0, 0, 0, 0
 for i in range(args.round_ft):
     print(f'{server[tar_domain].domain_name} fine-tuning round {i} ' + formatted_date_time)
-    server[tar_domain].mf_train()
-    hr_5, ndcg_5, hr_10, ndcg_10 = server[tar_domain].test_mf(i)
+    server[tar_domain].ft_stage()
+    hr_5, ndcg_5, hr_10, ndcg_10 = server[tar_domain].test_gnn(i)
     with open(output_file, 'a') as f:
         f.write(f'[{server[tar_domain].domain_name} Fine-tuning Round {i}] hr_5 = {hr_5:.4f}, ndcg_5 = {ndcg_5:.4f}, '
                 f'hr_10 ={hr_10:.4f}, ndcg_10 = {ndcg_10:.4f}\n')

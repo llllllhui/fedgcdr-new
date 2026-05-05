@@ -79,3 +79,5 @@ data/4domains/implicit.json
 tests/test_gcn_registration.py
 model(old)/
 毕业论文/
+thesis-latex/
+thesis.pdf

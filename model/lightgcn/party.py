@@ -50,6 +50,58 @@ class Server(BaseServer):
         self.item_lightgcn.eval()
         return self.test(self.user_embedding_with_attention, self.V, epoch_id)
 
+    def ft_stage(self):
+        """目标域GNN微调阶段：仅使用目标域数据继续优化LightGCN表示。"""
+        batch_num = math.ceil(self.num_users / self.args.user_batch)
+        ids = copy.deepcopy(self.clients)
+        np.random.shuffle(ids)
+
+        current_lr_gnn = self.args.lr_gnn
+        current_lr_mf = self.args.lr_mf
+
+        for bt in tqdm(range(batch_num), desc="FT Stage"):
+            grads_model, p, grads_embedding = [], [], []
+            total_item_interact_table = torch.zeros(self.num_items).to(self.args.device)
+            s, t = bt * self.args.user_batch, min((bt + 1) * self.args.user_batch, self.num_users)
+            batch_user = ids[s:t]
+
+            for it in batch_user:
+                if len(self.total_clients[it].train_data[self.id]) == 0:
+                    continue
+
+                pk, grad_lightgcn, grad_emb, _ = self.total_clients[it].train_lightgcn(
+                    self.id,
+                    self.user_dic,
+                    self.item_lightgcn,
+                    self.U,
+                    self.V,
+                    transfer=False,
+                    lr_gnn=current_lr_gnn,
+                    lr_mf=current_lr_mf,
+                )
+                total_items = grad_emb[3]
+                total_item_interact_table[total_items] += 1
+                p.append(pk)
+                grads_model.append(grad_lightgcn)
+                grads_embedding.append(grad_emb)
+
+            if not p:
+                continue
+
+            p = torch.tensor(p, device=self.args.device, dtype=torch.float32)
+            p = p / torch.sum(p)
+            for i, grad in enumerate(grads_model):
+                for j, vl in enumerate(self.item_lightgcn.parameters()):
+                    vl.data -= p[i] * grad[j]
+
+            total_item_interact_table[total_item_interact_table == 0] = 1
+            for grad in grads_embedding:
+                uid, u_emb_att, u_emb, total_items, total_grads = grad
+                map_id = self.user_dic[uid][self.domain_name]
+                self.user_embedding_with_attention[map_id] = u_emb_att
+                self.U[map_id] = u_emb
+                self.V[total_items] -= total_grads / total_item_interact_table[total_items].unsqueeze(1)
+
     def train_mlp(self, batch):
         """训练 MLP"""
         s, t = batch * self.args.user_batch, min((batch + 1) * self.args.user_batch, self.num_users)

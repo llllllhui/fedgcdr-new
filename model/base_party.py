@@ -142,6 +142,10 @@ class BaseServer(ABC):
         """测试 GNN 模型"""
         pass
     
+    def ft_stage(self):
+        """目标域GNN微调阶段"""
+        raise NotImplementedError(f"{self.__class__.__name__} does not implement ft_stage()")
+
     def test_mf(self, epoch_id: int):
         """测试 MF 模型"""
         return self.test(self.U, self.V, epoch_id)
