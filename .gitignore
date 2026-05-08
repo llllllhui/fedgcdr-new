@@ -81,3 +81,4 @@ model(old)/
 毕业论文/
 thesis-latex/
 thesis.pdf
+tests/test_gnn_ft_structure.py
