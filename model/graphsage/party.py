@@ -220,6 +220,7 @@ class Client(BaseClient):
                     temp_vec = self.l2_clip(
                         torch.tensor(self.knowledge[j][0], device=self.args.device),
                         self.sensitivity)
+                    # 知识质量门控：L2范数低于0.5说明知识质量低，置零防止干扰目标域
                     if torch.norm(temp_vec).item() < 0.5:
                         temp_vec = torch.zeros(self.args.embedding_size, device=self.args.device)
                 noise = torch.normal(mean=0, std=std,

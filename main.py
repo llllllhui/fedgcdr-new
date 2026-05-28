@@ -238,8 +238,7 @@ if args.resume_from and not args.checkpoint_path:
     exit(1)
 
 # 根据gnn_type参数选择对应的模块
-# 根据 gnn_type 参数选择对应的模型 - 使用模型注册表机制
-# 根据 gnn_type 参数选择对应的模型 - 使用模型注册表机制
+
 
 print(f'使用 {get_model_display_name(args.gnn_type)} 模型')
 try:

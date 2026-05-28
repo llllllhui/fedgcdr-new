@@ -82,3 +82,4 @@ model(old)/
 thesis-latex/
 thesis.pdf
 tests/test_gnn_ft_structure.py
+

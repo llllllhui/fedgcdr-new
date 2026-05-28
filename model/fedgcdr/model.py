@@ -46,6 +46,7 @@ class GATLayer(BaseGNNLayer):
         attention = torch.where(adj > 0, e, zero_vec)
         attention = nn.functional.softmax(attention, dim=-1)
         ah = torch.matmul(attention, h)
+        # 残差连接：将原始输入与注意力聚合结果相加，缓解过平滑
         return ah + h if self.use_residual else ah
 
 
@@ -86,6 +87,7 @@ class GAT(BaseGNNModel):
             attention_clamp_value=self.attention_clamp_value,
         ).to(args.device)
 
+        # LayerNorm：对每层输出做归一化，稳定训练、加速收敛
         self.ln1 = nn.LayerNorm(hid_feature).to(args.device) if self.use_layernorm else None
         self.ln2 = nn.LayerNorm(out_feature).to(args.device) if self.use_layernorm else None
 
@@ -105,6 +107,7 @@ class GAT(BaseGNNModel):
         adj[0, :] = 1.0
 
         x = self.in2hidden(x, adj)
+        # 第一层 LayerNorm：归一化隐藏层输出
         if self.ln1 is not None:
             x = self.ln1(x)
         intermediate_embedding.append(x[0].data)

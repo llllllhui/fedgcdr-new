@@ -248,6 +248,7 @@ class Client(BaseClient):
                     temp_vec = Client.l2_clip(
                         torch.tensor(self.knowledge[j][0], device=self.args.device), 
                         self.sensitivity)
+                    # 知识质量门控：L2范数低于阈值说明知识质量低，置零防止干扰目标域
                     if self.args.use_knowledge_gate:
                         knowledge_norm = torch.norm(temp_vec).item()
                         if knowledge_norm < knowledge_threshold:
