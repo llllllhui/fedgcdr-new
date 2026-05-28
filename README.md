@@ -108,11 +108,11 @@ uvicorn backend.main:app --reload --host 127.0.0.1 --port 8080
 ### 启动前端
 
 ```bash
-# 1. 安装前端依赖
+# 首次需安装依赖：
 cd frontend && npm install
 
-# 2. 启动 Vite 开发服务器
-npm run dev
+# 日常启动（node_modules 已存在时）：
+cd frontend && npm run dev
 ```
 
 浏览器打开 `http://localhost:5173/`。  
