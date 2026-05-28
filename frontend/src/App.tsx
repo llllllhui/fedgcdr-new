@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, Link, useLocation, useNavigate } from 'react-router-dom';
 import DashboardPage from './pages/DashboardPage';
 import TrainingPage from './pages/TrainingPage';
+import RecommendationPage from './pages/RecommendationPage';
 import LoginPage from './pages/LoginPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -48,6 +49,12 @@ function Layout({ children }: { children: React.ReactNode }) {
           }}>
             训练管理
           </Link>
+          <Link to="/recommendations" style={{
+            color: isActive('/recommendations') ? '#be4a2f' : '#5d5850', textDecoration: 'none',
+            fontWeight: isActive('/recommendations') ? 700 : 500, fontSize: '0.9rem',
+          }}>
+            推荐查询
+          </Link>
         </div>
         <button onClick={handleLogout} style={{
           padding: '6px 14px', borderRadius: '8px', border: '1px solid rgba(28,26,23,0.14)',
@@ -70,6 +77,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<ProtectedRoute><Layout><DashboardPage /></Layout></ProtectedRoute>} />
         <Route path="/training" element={<ProtectedRoute><Layout><TrainingPage /></Layout></ProtectedRoute>} />
+        <Route path="/recommendations" element={<ProtectedRoute><Layout><RecommendationPage /></Layout></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

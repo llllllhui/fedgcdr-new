@@ -107,6 +107,48 @@ export interface LogEntry {
   timestamp: string;
 }
 
+// ── 推荐查询类型 ──
+
+export interface RecoSnapshot {
+  gnn_type: string;
+  num_domain: number;
+  id: string;
+  target_domain_name: string;
+  timestamp: string;
+  before_source: string;
+  after_source: string;
+  global_user_count: number;
+}
+
+export interface SnapshotListResponse {
+  snapshots: RecoSnapshot[];
+  message?: string;
+}
+
+export interface Top10Item {
+  item_id: number;
+  rank: number;
+}
+
+export interface Top10Success {
+  found: true;
+  snapshot_id: string;
+  global_user_index: number;
+  local_user_index: number;
+  target_domain: string;
+  top10_before: number[];
+  top10_after: number[];
+}
+
+export interface Top10NotFound {
+  found: false;
+  message: string;
+  valid_users_sample: number[];
+  total_valid: number;
+}
+
+export type Top10Response = Top10Success | Top10NotFound;
+
 // ── API 函数 ──
 
 export const authApi = {
@@ -148,6 +190,22 @@ export const checkpointApi = {
 
   delete: (dirName: string) =>
     api.delete(`/api/checkpoints/${encodeURIComponent(dirName)}`).then((r) => r.data),
+};
+
+// ── 推荐查询 API ──
+
+export const recoApi = {
+  /** 列出可用推荐快照 */
+  snapshots: (params?: { gnn_type?: string; num_domain?: number }) =>
+    api.get<SnapshotListResponse>('/api/recommendations/snapshots', { params }).then((r) => r.data),
+
+  /** 查询用户在指定快照中的 Top10（跨域前/跨域后对比） */
+  top10: (snapshotId: string, userIndex: number) =>
+    api.get<Top10Response>(`/api/recommendations/top10/${encodeURIComponent(snapshotId)}/${userIndex}`).then((r) => r.data),
+
+  /** 训练结果摘要 */
+  resultsSummary: () =>
+    api.get('/api/recommendations/results-summary').then((r) => r.data),
 };
 
 export default api;
